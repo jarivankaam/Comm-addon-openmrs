@@ -18,7 +18,9 @@ Bot toevoegen → **Ja** (Deze controleert de pull requesten) → SonarCloud →
 # ADR 1: Positionering van de Communicatiemodule
 
 **Status:** Voorgesteld
+
 **Datum:** 23 april 2026
+
 **Besluitvormer:** Architectuurteam
 
 ## Context
