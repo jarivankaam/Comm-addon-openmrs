@@ -19,7 +19,7 @@ Wij hebben gekozen voor de volgende technologie stack:
 | Taal                             | Java 8                           |
 | Framework                        | Spring (Boot) 2.7.x                |
 | Berichtenwachtrij (Message Broker) | RabbitMQ                        |
-| Database (Opslag)                | PostgreSQL                       |
+| Database (Opslag)                | MongoDB                      |
 | Monitoring                       | OpenTelemetry met Prometheus & Grafana |
 | FHIR Bibliotheek                 | HAPI FHIR                        |
 
@@ -39,7 +39,7 @@ Wij hebben gekozen voor de volgende technologie stack:
 
 **Match met eisen:** Het ondersteunt Dead Letter Queues (DLQ). Als een bericht na 3 pogingen nog niet is verzonden, wordt het veilig geparkeerd voor handmatige inspectie, zonder dat het systeem blokkeert.
 
-### 3. Opslag: PostgreSQL
+### 3. Opslag: MongoDB
 
 **Waarom:** PostgreSQL is een krachtige relationele database die uitstekend overweg kan met JSONB (handig voor FHIR-resources) en sterke encryptie-mogelijkheden biedt op kolom-niveau.
 
