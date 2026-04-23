@@ -1,20 +1,3 @@
-# Kwaliteit & Testing
-
-## SonarCloud
-
-Bot toevoegen → **Ja** (Deze controleert de pull requesten) → SonarCloud → Ook op de CI/CD
-
-## Teststrategie
-
-| Testtype           | Toepassen? |
-|--------------------|------------|
-| Unittesten         | Ja         |
-| Integratietesten   | Ja         |
-| E2E-testen         | Nee        |
-| Pentesten          | Ja         |
-
----
-
 # ADR 1: Positionering van de Communicatiemodule
 
 **Status:** Voorgesteld
