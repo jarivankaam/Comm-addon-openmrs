@@ -40,11 +40,11 @@ Wij hebben gekozen voor de volgende technologie stack:
 **Match met eisen:** Het ondersteunt Dead Letter Queues (DLQ). Als een bericht na 3 pogingen nog niet is verzonden, wordt het veilig geparkeerd voor handmatige inspectie, zonder dat het systeem blokkeert.
 
 ### 3. Database: MongoDB
-**Waarom:** FHIR-resources zijn in de kern hiërarchische datastructuren (JSON). MongoDB, als document-oriented database, kan deze resources opslaan zonder ze te hoeven forceren in een rigide tabelstructuur.
+**Waarom:** FHIR-resources zijn in de kern gestructureerde datastructuren (JSON). MongoDB, als document-oriented database, kan deze resources opslaan zonder ze te hoeven forceren in een streng tabelstructuur.
 
 **Data Retention:** MongoDB biedt TTL (Time-To-Live) indexen. Hiermee kunnen we technisch garanderen dat patiëntgegevens na exact 14 dagen worden verwijderd, simpelweg door een verlooptijd op het document in te stellen.
 
-**Capaciteiten team:** Het team heeft ruime ervaring met NoSQL/MongoDB en geen ervaring met PostgreSQL. Het kiezen voor MongoDB voorkomt kostbare leercurves en architectonische fouten tijdens de implementatie.
+**Capaciteiten team:** Het team heeft ruime ervaring met NoSQL/MongoDB en geen ervaring met PostgreSQL. Het kiezen voor MongoDB voorkomt kostbare leercurves en implementeer fouten tijdens de implementatie.
 
 ### 4. Monitoring: OpenTelemetry (OTEL)
 **Waarom:** In een SaaS-omgeving met meerdere providers is het cruciaal om te weten waar een vertraging optreedt. OpenTelemetry biedt Distributed Tracing. Hiermee kunnen we een bericht volgen vanaf de binnenkomst vanuit OpenMRS, door de RabbitMQ-wachtrij, tot aan de API van de messaging provider.
@@ -59,18 +59,18 @@ Wij hebben gekozen voor de volgende technologie stack:
 
 ## Overwogen alternatieven
 
-**NestJS** *(Rejected)*: Dit is een TypeScript framework. Omdat het team Java heeft gekozen als basistaal, is NestJS technisch niet compatibel.
+**NestJS** *(Rejected)*: Dit is een TypeScript framework. Omdat wij als team Java hebben gekozen als basistaal, is NestJS technisch niet compatibel.
 
 **Apache Kafka** *(Rejected)*: Hoewel zeer krachtig, is Kafka vaak te complex voor een communicatiemodule van deze omvang. RabbitMQ is lichter en makkelijker te beheren voor een SaaS-start.
 
 **In-memory opslag** *(Rejected)*: We hebben een echte database nodig omdat we meta-informatie tot een jaar moeten bewaren voor de facturatiecontrole.
 
-**PostgreSQL** *(Rejected)*: Hoewel krachtig voor relationele data, ontbreekt het het team aan de nodige expertise om dit veilig en efficiënt in te richten binnen de tijdlijn van het project.
+**PostgreSQL** *(Rejected)*: Hoewel krachtig voor relationele data, ontbreekt het team aan de nodige expertise om dit veilig en efficiënt in te richten binnen de tijdlijn van het project.
 
 ## Consequenties
 
-**Ontwikkeling:** Het team moet kennis hebben van Spring Beans en Dependency Injection.
+**Ontwikkeling:** Het team moet kennis hebben van Spring Boot en Dependency Injection.
 
-**Beheer:** Er moet een RabbitMQ-server en PostgreSQL-server worden ingericht en onderhouden (naast de applicatie zelf).
+**Beheer:** Er moet een RabbitMQ-server en MongoDB-server worden ingericht en onderhouden (naast de applicatie zelf).
 
 **Beveiliging:** Omdat we Java 8 gebruiken, moeten we extra goed letten op het up-to-date houden van dependencies om beveiligingslekken te voorkomen.
