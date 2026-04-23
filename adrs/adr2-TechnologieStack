@@ -15,7 +15,7 @@ Wij hebben gekozen voor de volgende technologie stack:
 | Component                        | Keuze                            |
 |----------------------------------|----------------------------------|
 | Taal                             | Java 8                           |
-| Framework                        | Spring Boot 2.7.x                |
+| Framework                        | Spring (Boot) 2.7.x                |
 | Berichtenwachtrij (Message Broker) | RabbitMQ                        |
 | Database (Opslag)                | PostgreSQL                       |
 | Monitoring                       | OpenTelemetry met Prometheus & Grafana |
