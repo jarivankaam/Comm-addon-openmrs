@@ -39,17 +39,17 @@ Wij hebben gekozen voor de volgende technologie stack:
 
 **Match met eisen:** Het ondersteunt Dead Letter Queues (DLQ). Als een bericht na 3 pogingen nog niet is verzonden, wordt het veilig geparkeerd voor handmatige inspectie, zonder dat het systeem blokkeert.
 
-### 3. Opslag: MongoDB
+### 3. Database: MongoDB
+**Waarom:** FHIR-resources zijn in de kern hiërarchische datastructuren (JSON). MongoDB, als document-oriented database, kan deze resources opslaan zonder ze te hoeven forceren in een rigide tabelstructuur.
 
-**Waarom:** PostgreSQL is een krachtige relationele database die uitstekend overweg kan met JSONB (handig voor FHIR-resources) en sterke encryptie-mogelijkheden biedt op kolom-niveau.
+**Data Retention:** MongoDB biedt TTL (Time-To-Live) indexen. Hiermee kunnen we technisch garanderen dat patiëntgegevens na exact 14 dagen worden verwijderd, simpelweg door een verlooptijd op het document in te stellen.
 
-**Match met eisen:** Het is eenvoudig om automatische "cleanup" scripts te draaien die patiëntgegevens na 14 dagen verwijderen, terwijl de meta-informatie (voor facturatie) behouden blijft.
+**Capaciteiten team:** Het team heeft ruime ervaring met NoSQL/MongoDB en geen ervaring met PostgreSQL. Het kiezen voor MongoDB voorkomt kostbare leercurves en architectonische fouten tijdens de implementatie.
 
 ### 4. Monitoring: OpenTelemetry (OTEL)
+**Waarom:** In een SaaS-omgeving met meerdere providers is het cruciaal om te weten waar een vertraging optreedt. OpenTelemetry biedt Distributed Tracing. Hiermee kunnen we een bericht volgen vanaf de binnenkomst vanuit OpenMRS, door de RabbitMQ-wachtrij, tot aan de API van de messaging provider.
 
-**Waarom:** De opdracht eist expliciet inzicht via monitoringtooling en een real-time dashboard.
-
-**Match met eisen:** OpenTelemetry is de standaard voor distributed tracing. We kunnen precies zien hoe lang een bericht erover doet van binnenkomst (OpenMRS) tot verzending (bijv. SecurePost).
+**Vendor Neutrality:** OTEL zorgt ervoor dat onze monitoring niet vastzit aan één specifieke tool. We kunnen de data naar Prometheus/Grafana sturen, maar in de toekomst ook eenvoudig overstappen naar andere professionele dashboards zonder de code aan te passen.
 
 ### 5. FHIR Bibliotheek: HAPI FHIR
 
@@ -64,6 +64,8 @@ Wij hebben gekozen voor de volgende technologie stack:
 **Apache Kafka** *(Rejected)*: Hoewel zeer krachtig, is Kafka vaak te complex voor een communicatiemodule van deze omvang. RabbitMQ is lichter en makkelijker te beheren voor een SaaS-start.
 
 **In-memory opslag** *(Rejected)*: We hebben een echte database nodig omdat we meta-informatie tot een jaar moeten bewaren voor de facturatiecontrole.
+
+**PostgreSQL** *(Rejected)*: Hoewel krachtig voor relationele data, ontbreekt het het team aan de nodige expertise om dit veilig en efficiënt in te richten binnen de tijdlijn van het project.
 
 ## Consequenties
 
