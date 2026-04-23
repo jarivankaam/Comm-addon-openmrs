@@ -23,7 +23,7 @@ Bot toevoegen → **Ja** (Deze controleert de pull requesten) → SonarCloud →
 
 ## Context
 
-OpenMRS-organisaties wereldwijd hebben behoefte aan een manier om patiënten te informeren via messaging-providers (zoals WhatsApp of SMS). Omdat OpenMRS vaak lokaal (on-premise) draait in klinieken met beperkte technische middelen, is het beheer van complexe API-koppelingen en beveiligingscertificaten voor deze klinieken een grote last. Er moet een keuze worden gemaakt: bouwen we dit in OpenMRS (als Java-module) of buiten OpenMRS (als zelfstandige SaaS-oplossing)?
+OpenMRS-organisaties wereldwijd hebben behoefte aan een manier om patiënten te informeren via messaging-providers (zoals WhatsApp of SMS). Omdat OpenMRS vaak lokaal draait in klinieken met beperkte technische middelen, is het beheer van complexe API-koppelingen en beveiligingscertificaten voor deze klinieken een grote last. Er moet een keuze worden gemaakt: bouwen we dit in OpenMRS (als Java-module) of buiten OpenMRS (als zelfstandige SaaS-oplossing)?
 
 ## Besluit
 
