@@ -1,64 +1,72 @@
-ADR 2: Technologie Stack
-Status: Voorgesteld
-Datum: 23 april 2026
-Besluitvormer: Architectuurteam
+# ADR 2: Technologie Stack
 
-Context
+**Status:** Voorgesteld
+**Datum:** 23 april 2026
+**Besluitvormer:** Architectuurteam
+
+## Context
+
 De communicatiemodule moet als een betrouwbare, schaalbare SaaS-oplossing functioneren. Het moet zware encryptie (AES-256) ondersteunen, HL7 FHIR-standaarden volgen en robuuste wachtrij-mechanismen hebben voor het geval dat messaging providers (zoals SwiftSend) offline gaan.
 
-Besluit
+## Besluit
+
 Wij hebben gekozen voor de volgende technologie stack:
 
-Taal: Java 8
+| Component                        | Keuze                            |
+|----------------------------------|----------------------------------|
+| Taal                             | Java 8                           |
+| Framework                        | Spring Boot 2.7.x                |
+| Berichtenwachtrij (Message Broker) | RabbitMQ                        |
+| Database (Opslag)                | PostgreSQL                       |
+| Monitoring                       | OpenTelemetry met Prometheus & Grafana |
+| FHIR Bibliotheek                 | HAPI FHIR                        |
 
-Framework: Spring Boot 2.7.x
+## Argumentatie
 
-Berichtenwachtrij (Message Broker): RabbitMQ
+### 1. Taal & Framework: Java 8 met Spring Boot 2.7
 
-Database (Opslag): PostgreSQL
+**Waarom:** Hoewel Java 8 ouder is, is het extreem stabiel en wordt het breed ondersteund binnen de OpenMRS-community. Spring Boot 2.7 is de laatste grote versie die nog Java 8 ondersteunt.
 
-Monitoring: OpenTelemetry met Prometheus & Grafana
+**Match met eisen:** Spring Boot heeft een volwassen ecosysteem voor beveiliging (Spring Security) en integraties, wat essentieel is voor de gevraagde AES-256 encryptie en TLS 1.3 verbindingen.
 
-FHIR Bibliotheek: HAPI FHIR
+**Capaciteiten team:** Java is een "type-safe" taal, wat cruciaal is bij het verwerken van medische data om runtime-fouten te voorkomen.
 
-Argumentatie
-1. Taal & Framework: Java 8 met Spring Boot 2.7
-Waarom: Hoewel Java 8 ouder is, is het extreem stabiel en wordt het breed ondersteund binnen de OpenMRS-community. Spring Boot 2.7 is de laatste grote versie die nog Java 8 ondersteunt.
+### 2. Berichtenwachtrij: RabbitMQ
 
-Match met eisen: Spring Boot heeft een volwassen ecosysteem voor beveiliging (Spring Security) en integraties, wat essentieel is voor de gevraagde AES-256 encryptie en TLS 1.3 verbindingen.
+**Waarom:** De opdracht eist een "zelfontworpen fallback- of retrymechanisme". RabbitMQ is perfect voor het tijdelijk opslaan van berichten als een provider (zoals LegacyLink) een storing heeft.
 
-Capaciteiten team: Java is een "type-safe" taal, wat cruciaal is bij het verwerken van medische data om runtime-fouten te voorkomen.
+**Match met eisen:** Het ondersteunt Dead Letter Queues (DLQ). Als een bericht na 3 pogingen nog niet is verzonden, wordt het veilig geparkeerd voor handmatige inspectie, zonder dat het systeem blokkeert.
 
-2. Berichtenwachtrij: RabbitMQ
-Waarom: De opdracht eist een "zelfontworpen fallback- of retrymechanisme". RabbitMQ is perfect voor het tijdelijk opslaan van berichten als een provider (zoals LegacyLink) een storing heeft.
+### 3. Opslag: PostgreSQL
 
-Match met eisen: Het ondersteunt Dead Letter Queues (DLQ). Als een bericht na 3 pogingen nog niet is verzonden, wordt het veilig geparkeerd voor handmatige inspectie, zonder dat het systeem blokkeert.
+**Waarom:** PostgreSQL is een krachtige relationele database die uitstekend overweg kan met JSONB (handig voor FHIR-resources) en sterke encryptie-mogelijkheden biedt op kolom-niveau.
 
-3. Opslag: PostgreSQL
-Waarom: PostgreSQL is een krachtige relationele database die uitstekend overweg kan met JSONB (handig voor FHIR-resources) en sterke encryptie-mogelijkheden biedt op kolom-niveau.
+**Match met eisen:** Het is eenvoudig om automatische "cleanup" scripts te draaien die patiëntgegevens na 14 dagen verwijderen, terwijl de meta-informatie (voor facturatie) behouden blijft.
 
-Match met eisen: Het is eenvoudig om automatische "cleanup" scripts te draaien die patiëntgegevens na 14 dagen verwijderen, terwijl de meta-informatie (voor facturatie) behouden blijft.
+### 4. Monitoring: OpenTelemetry (OTEL)
 
-4. Monitoring: OpenTelemetry (OTEL)
-Waarom: De opdracht eist expliciet inzicht via monitoringtooling en een real-time dashboard.
+**Waarom:** De opdracht eist expliciet inzicht via monitoringtooling en een real-time dashboard.
 
-Match met eisen: OpenTelemetry is de standaard voor distributed tracing. We kunnen precies zien hoe lang een bericht erover doet van binnenkomst (OpenMRS) tot verzending (bijv. SecurePost).
+**Match met eisen:** OpenTelemetry is de standaard voor distributed tracing. We kunnen precies zien hoe lang een bericht erover doet van binnenkomst (OpenMRS) tot verzending (bijv. SecurePost).
 
-5. FHIR Bibliotheek: HAPI FHIR
-Waarom: Dit is de wereldstandaard voor Java-applicaties die met HL7 FHIR werken.
+### 5. FHIR Bibliotheek: HAPI FHIR
 
-Match met eisen: Het regelt de validatie, parsing en syntaxis-controle die vereist is voor HL7-systemen, zodat we dit niet zelf vanaf nul hoeven te bouwen.
+**Waarom:** Dit is de wereldstandaard voor Java-applicaties die met HL7 FHIR werken.
 
-Overwogen alternatieven
-NestJS (Rejected): Dit is een TypeScript framework. Omdat het team Java heeft gekozen als basistaal, is NestJS technisch niet compatibel.
+**Match met eisen:** Het regelt de validatie, parsing en syntaxis-controle die vereist is voor HL7-systemen, zodat we dit niet zelf vanaf nul hoeven te bouwen.
 
-Apache Kafka (Rejected): Hoewel zeer krachtig, is Kafka vaak te complex voor een communicatiemodule van deze omvang. RabbitMQ is lichter en makkelijker te beheren voor een SaaS-start.
+## Overwogen alternatieven
 
-In-memory opslag (Rejected): We hebben een echte database nodig omdat we meta-informatie tot een jaar moeten bewaren voor de facturatiecontrole.
+**NestJS** *(Rejected)*: Dit is een TypeScript framework. Omdat het team Java heeft gekozen als basistaal, is NestJS technisch niet compatibel.
 
-Consequenties
-Ontwikkeling: Het team moet kennis hebben van Spring Beans en Dependency Injection.
+**Apache Kafka** *(Rejected)*: Hoewel zeer krachtig, is Kafka vaak te complex voor een communicatiemodule van deze omvang. RabbitMQ is lichter en makkelijker te beheren voor een SaaS-start.
 
-Beheer: Er moet een RabbitMQ-server en PostgreSQL-server worden ingericht en onderhouden (naast de applicatie zelf).
+**In-memory opslag** *(Rejected)*: We hebben een echte database nodig omdat we meta-informatie tot een jaar moeten bewaren voor de facturatiecontrole.
 
-Beveiliging: Omdat we Java 8 gebruiken, moeten we extra goed letten op het up-to-date houden van dependencies om beveiligingslekken te voorkomen.
+## Consequenties
+
+**Ontwikkeling:** Het team moet kennis hebben van Spring Beans en Dependency Injection.
+
+**Beheer:** Er moet een RabbitMQ-server en PostgreSQL-server worden ingericht en onderhouden (naast de applicatie zelf).
+
+**Beveiliging:** Omdat we Java 8 gebruiken, moeten we extra goed letten op het up-to-date houden van dependencies om beveiligingslekken te voorkomen.
