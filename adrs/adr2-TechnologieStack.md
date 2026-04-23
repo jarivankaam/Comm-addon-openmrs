@@ -1,7 +1,9 @@
 # ADR 2: Technologie Stack
 
 **Status:** Voorgesteld
+
 **Datum:** 23 april 2026
+
 **Besluitvormer:** Architectuurteam
 
 ## Context
