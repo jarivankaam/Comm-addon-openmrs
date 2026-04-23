@@ -1,7 +1,9 @@
 # ADR 3: Integratiemethode (Koppeling met OpenMRS)
 
 **Status:** Voorgesteld
+
 **Datum:** 23 april 2026
+
 **Besluitvormer:** Architectuurteam
 
 ## Context
