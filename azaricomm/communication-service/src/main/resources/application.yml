@@ -1,0 +1,20 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: azaricomm-communication-service
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+
+rabbitmq:
+  exchange: openmrs.events
+  queue: azaricomm.notifications
+  routing-key: "notification.#"
+
+logging:
+  level:
+    com.azaricomm: DEBUG
