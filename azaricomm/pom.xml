@@ -16,7 +16,7 @@
 	<description>no description</description>
 
 	<url>https://wiki.openmrs.org/x/FQ4z</url>
-
+	
 	<scm>
 		<connection>scm:git:git@github.com:openmrs/openmrs-module-azaricomm.git</connection>
 		<developerConnection>scm:git:git@github.com:openmrs/openmrs-module-azaricomm.git</developerConnection>
@@ -167,5 +167,6 @@
 
 	<properties>
 		<openmrsPlatformVersion>2.0.0</openmrsPlatformVersion>
+  		<sonar.organization>jarivankaam</sonar.organization>
 	</properties>
 </project>
