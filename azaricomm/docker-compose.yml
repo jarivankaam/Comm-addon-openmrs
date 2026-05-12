@@ -1,5 +1,4 @@
 version: "3.8"
-
 services:
   rabbitmq:
     image: rabbitmq:3-management
@@ -16,6 +15,14 @@ services:
       timeout: 5s
       retries: 10
 
+  mongodb:
+    image: mongo:7
+    container_name: azaricomm-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
   communication-service:
     build:
       context: ./communication-service
@@ -30,3 +37,26 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+
+  scheduler:
+    build:
+      context: ./scheduler
+    container_name: azaricomm-scheduler
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      mongodb:
+        condition: service_started
+
+  notifworker:
+    build:
+      context: ./notifworker
+    container_name: azaricomm-notifworker
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      mongodb:
+        condition: service_started
+
+volumes:
+  mongodb_data:
