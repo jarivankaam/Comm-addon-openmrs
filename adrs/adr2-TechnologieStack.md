@@ -18,7 +18,7 @@ Wij hebben gekozen voor de volgende technologie stack:
 |----------------------------------|----------------------------------|
 | Taal                             | Java 8                           |
 | Framework                        | Spring (Boot) 2.7.x                |
-| API Applicatie                    | Spring Web (Ingress van FHIR Resources |
+| API Applicatie                    | Spring Web (Ingress van FHIR Resources) |
 | Berichtenwachtrij (Message Broker) | RabbitMQ                        |
 | Scheduler                        | Spring Boot @Scheduled (Polling van DB)  |
 | Worker applicatie               | Spring AMQP (Message verwerking & verzending |
@@ -40,9 +40,20 @@ Wij hebben gekozen voor de volgende technologie stack:
 
 **Waarom:** De opdracht eist een "zelfontworpen fallback- of retrymechanisme". RabbitMQ is perfect voor het tijdelijk opslaan van berichten als een provider (zoals LegacyLink) een storing heeft.
 
-**Match met eisen:** Het ondersteunt Dead Letter Queues (DLQ). Als een bericht na 3 pogingen nog niet is verzonden, wordt het veilig geparkeerd voor handmatige inspectie, zonder dat het systeem blokkeert.
+**Betrouwbaarheid:** Het ondersteunt Dead Letter Queues (DLQ). Als een bericht na 3 pogingen nog niet is verzonden, wordt het veilig geparkeerd voor handmatige inspectie, zonder dat het systeem blokkeert.
 
-### 3. Database: MongoDB
+**Persistentie:** Berichten worden op schijf opgeslagen, zodat ze niet verloren gaan bij een herstart van de broker.
+
+### 3. De Worker Applicatie (Execution & Validation)
+De Worker is een onafhankelijke service die verantwoordelijk is voor de uiteindelijke aflevering. De kracht van de Worker zit in de "Just-in-Time" validatie:
+
+**Status Check:** Voordat de Worker een bericht naar een provider (bijv. SwiftSend) stuurt, raadpleegt hij de database om te controleren of de afspraak nog de status SCHEDULED heeft.
+
+**Annuleringen:** Als een patiënt in de tussentijd heeft geannuleerd, is de status in MongoDB gewijzigd naar CANCELLED. De Worker ziet dit, breekt de verzending af en logt dit resultaat.
+
+**Tijd Check:** De Worker controleert of de afspraak niet al begonnen is (eis 1.3 van de opdracht).
+
+### 4. Database: MongoDB
 **Waarom:** FHIR-resources zijn in de kern gestructureerde datastructuren (JSON). MongoDB, als document-oriented database, kan deze resources opslaan zonder ze te hoeven forceren in een streng tabelstructuur.
 
 **Data Retention:** MongoDB biedt TTL (Time-To-Live) indexen. Hiermee kunnen we technisch garanderen dat patiëntgegevens na exact 14 dagen worden verwijderd, simpelweg door een verlooptijd op het document in te stellen.
@@ -53,18 +64,18 @@ Wij hebben gekozen voor de volgende technologie stack:
 
 **Performance:** Door gebruik van Compound Indexen op status en scheduledTime kan de scheduler miljoenen records scannen in milliseconden zonder de database te overbelasten.
 
-### 4. Monitoring: OpenTelemetry (OTEL)
+### 5. Monitoring: OpenTelemetry (OTEL)
 **Waarom:** In een SaaS-omgeving met meerdere providers is het cruciaal om te weten waar een vertraging optreedt. OpenTelemetry biedt Distributed Tracing. Hiermee kunnen we een bericht volgen vanaf de binnenkomst vanuit OpenMRS, door de RabbitMQ-wachtrij, tot aan de API van de messaging provider.
 
 **Vendor Neutrality:** OTEL zorgt ervoor dat onze monitoring niet vastzit aan één specifieke tool. We kunnen de data naar Prometheus/Grafana sturen, maar in de toekomst ook eenvoudig overstappen naar andere professionele dashboards zonder de code aan te passen.
 
-### 5. FHIR Bibliotheek: HAPI FHIR
+### 6. FHIR Bibliotheek: HAPI FHIR
 
 **Waarom:** Dit is de wereldstandaard voor Java-applicaties die met HL7 FHIR werken.
 
 **Match met eisen:** Het regelt de validatie, parsing en syntaxis-controle die vereist is voor HL7-systemen, zodat we dit niet zelf vanaf nul hoeven te bouwen.
 
-### 6. Scheduler: Spring Boot @Scheduled
+### 7. Scheduler: Spring Boot @Scheduled
 
 **Waarom:** De scheduler fungeert als de "wekker" van het systeem. Hij ontkoppelt de ontvangst van de afspraak (API) van het versturen (Worker). Dit is essentieel voor de gevraagde 24h/1h notificaties.
 
@@ -83,6 +94,10 @@ Wij hebben gekozen voor de volgende technologie stack:
 ## Consequenties
 
 **Ontwikkeling:** Het team moet kennis hebben van Spring Boot en Dependency Injection.
+
+**Consistentie:** De Worker moet altijd een leesactie op de database uitvoeren vóór verzending. Dit verhoogt de betrouwbaarheid maar zorgt voor een kleine extra belasting op MongoDB.
+
+**Idempotentie:** Onze verzend-logica moet herkennen of een bericht per ongeluk dubbel wordt aangeboden om dubbele SMS'jes te voorkomen.
 
 **Beheer:** Er moet een RabbitMQ-server en MongoDB-server worden ingericht en onderhouden (naast de applicatie zelf).
 
