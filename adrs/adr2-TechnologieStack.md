@@ -8,7 +8,7 @@
 
 ## Context
 
-De communicatiemodule moet als een betrouwbare, schaalbare SaaS-oplossing functioneren. Het moet zware encryptie (AES-256) ondersteunen, HL7 FHIR-standaarden volgen en robuuste wachtrij-mechanismen hebben voor het geval dat messaging providers (zoals SwiftSend) offline gaan.
+De communicatiemodule moet als betrouwbare SaaS-oplossing functioneren en voldoen aan specifieke timing-eisen (notificaties exact 24 uur en 1 uur voor een afspraak). Dit vereist een architectuur die niet alleen berichten kan ontvangen en versturen, maar ook taken kan inplannen, annuleringen kan verwerken en schaalbaar is onder zware belasting.
 
 ## Besluit
 
@@ -18,9 +18,11 @@ Wij hebben gekozen voor de volgende technologie stack:
 |----------------------------------|----------------------------------|
 | Taal                             | Java 8                           |
 | Framework                        | Spring (Boot) 2.7.x                |
+| API Applicatie                    | Spring Web (Ingress van FHIR Resources |
 | Berichtenwachtrij (Message Broker) | RabbitMQ                        |
-| Scheduler                        | Spring Boot @Scheduled / Quartz  |
-| Database (Opslag)                | MongoDB met Compound & TTL Indexen|
+| Scheduler                        | Spring Boot @Scheduled (Polling van DB)  |
+| Worker applicatie               | Spring AMQP (Message verwerking & verzending |
+| Database                | MongoDB met Compound & TTL Indexen|
 | Monitoring                       | OpenTelemetry met Prometheus & Grafana |
 | FHIR Bibliotheek                 | HAPI FHIR                        |
 
@@ -47,6 +49,10 @@ Wij hebben gekozen voor de volgende technologie stack:
 
 **Capaciteiten team:** Het team heeft ruime ervaring met NoSQL/MongoDB en geen ervaring met PostgreSQL. Het kiezen voor MongoDB voorkomt kostbare leercurves en implementeer fouten tijdens de implementatie.
 
+**Status-gebaseerd beheer:** We slaan afspraken op met status-tags (SCHEDULED, QUEUED, SENT, CANCELLED). Dit stelt ons in staat om annuleringen simpelweg te verwerken door een status-update, zonder complexe operaties in de berichtenwachtrij.
+
+**Performance:** Door gebruik van Compound Indexen op status en scheduledTime kan de scheduler miljoenen records scannen in milliseconden zonder de database te overbelasten.
+
 ### 4. Monitoring: OpenTelemetry (OTEL)
 **Waarom:** In een SaaS-omgeving met meerdere providers is het cruciaal om te weten waar een vertraging optreedt. OpenTelemetry biedt Distributed Tracing. Hiermee kunnen we een bericht volgen vanaf de binnenkomst vanuit OpenMRS, door de RabbitMQ-wachtrij, tot aan de API van de messaging provider.
 
@@ -57,6 +63,12 @@ Wij hebben gekozen voor de volgende technologie stack:
 **Waarom:** Dit is de wereldstandaard voor Java-applicaties die met HL7 FHIR werken.
 
 **Match met eisen:** Het regelt de validatie, parsing en syntaxis-controle die vereist is voor HL7-systemen, zodat we dit niet zelf vanaf nul hoeven te bouwen.
+
+### 6. Scheduler: Spring Boot @Scheduled
+
+**Waarom:** De scheduler fungeert als de "wekker" van het systeem. Hij ontkoppelt de ontvangst van de afspraak (API) van het versturen (Worker). Dit is essentieel voor de gevraagde 24h/1h notificaties.
+
+**Mechanisme:** De scheduler haalt in batches afspraken op die klaarstaan voor verzending en plaatst enkel een referentie (ID) in RabbitMQ. Dit voorkomt dat de queue volstroomt met berichten die pas over uren verwerkt hoeven te worden.
 
 ## Overwogen alternatieven
 
