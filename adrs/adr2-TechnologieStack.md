@@ -45,7 +45,9 @@ Wij hebben gekozen voor de volgende technologie stack:
 **Persistentie:** Berichten worden op schijf opgeslagen, zodat ze niet verloren gaan bij een herstart van de broker.
 
 ### 3. De Worker Applicatie (Execution & Validation)
-De Worker is een onafhankelijke service die verantwoordelijk is voor de uiteindelijke aflevering. De kracht van de Worker zit in de "Just-in-Time" validatie:
+De Worker is een onafhankelijke service die verantwoordelijk is voor de uiteindelijke aflevering. Door de Worker als een losstaande service te draaien, kunnen we de rekenkracht die nodig is voor zware encryptie en externe API-calls onafhankelijk schalen zonder de API-ontvangst te hinderen.
+
+De kracht van de Worker zit in de "Just-in-Time" validatie:
 
 **Status Check:** Voordat de Worker een bericht naar een provider (bijv. SwiftSend) stuurt, raadpleegt hij de database om te controleren of de afspraak nog de status SCHEDULED heeft.
 
@@ -64,6 +66,8 @@ De Worker is een onafhankelijke service die verantwoordelijk is voor de uiteinde
 
 **Performance:** Door gebruik van Compound Indexen op status en scheduledTime kan de scheduler miljoenen records scannen in milliseconden zonder de database te overbelasten.
 
+**Data Splitsing:** Er moet een duidelijk onderscheid gemaakt worden in de database tussen het 'Appointment' document (Verwijderen na 14 dagen) en het 'AuditLog' document (metadata voor facturatie, bewaren voor 1 jaar).
+
 ### 5. Monitoring: OpenTelemetry (OTEL)
 **Waarom:** In een SaaS-omgeving met meerdere providers is het cruciaal om te weten waar een vertraging optreedt. OpenTelemetry biedt Distributed Tracing. Hiermee kunnen we een bericht volgen vanaf de binnenkomst vanuit OpenMRS, door de RabbitMQ-wachtrij, tot aan de API van de messaging provider.
 
@@ -79,7 +83,7 @@ De Worker is een onafhankelijke service die verantwoordelijk is voor de uiteinde
 
 **Waarom:** De scheduler fungeert als de "wekker" van het systeem. Hij ontkoppelt de ontvangst van de afspraak (API) van het versturen (Worker). Dit is essentieel voor de gevraagde 24h/1h notificaties.
 
-**Mechanisme:** De scheduler haalt in batches afspraken op die klaarstaan voor verzending en plaatst enkel een referentie (ID) in RabbitMQ. Dit voorkomt dat de queue volstroomt met berichten die pas over uren verwerkt hoeven te worden.
+**Mechanisme:** De scheduler haalt in batches afspraken op die klaarstaan voor verzending en plaatst enkel een referentie (ID) in RabbitMQ. Dit verhoogt de veiligheid en garandeert dat de Worker altijd de meest actuele data uit de database ophaalt. Dit voorkomt ook dat de queue volstroomt met berichten die pas over uren verwerkt hoeven te worden.
 
 ## Overwogen alternatieven
 
