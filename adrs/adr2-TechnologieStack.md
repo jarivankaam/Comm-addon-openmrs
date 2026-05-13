@@ -19,7 +19,8 @@ Wij hebben gekozen voor de volgende technologie stack:
 | Taal                             | Java 8                           |
 | Framework                        | Spring (Boot) 2.7.x                |
 | Berichtenwachtrij (Message Broker) | RabbitMQ                        |
-| Database (Opslag)                | MongoDB                      |
+| Scheduler                        | Spring Boot @Scheduled / Quartz  |
+| Database (Opslag)                | MongoDB met Compound & TTL Indexen|
 | Monitoring                       | OpenTelemetry met Prometheus & Grafana |
 | FHIR Bibliotheek                 | HAPI FHIR                        |
 
