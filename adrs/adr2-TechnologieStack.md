@@ -38,9 +38,11 @@ Wij hebben gekozen voor de volgende technologie stack:
 
 ### 2. Berichtenwachtrij: RabbitMQ
 
-**Waarom:** De opdracht eist een "zelfontworpen fallback- of retrymechanisme". RabbitMQ is perfect voor het tijdelijk opslaan van berichten als een provider (zoals LegacyLink) een storing heeft.
+**Waarom:** De opdracht eist een "zelfontworpen fallback- of retrymechanisme". RabbitMQ is perfect voor het tijdelijk opslaan van berichten als een provider (zoals LegacyLink) een storing heeft. Daarbij zorgt de keuze om de berichtenwachtrij specifiek tussen de scheduler en de worker te plaatsen, ervoor dat de grootste SaaS-uitdagingen op rondom netwerkcommunicatie opgelost worden. 
 
-**Betrouwbaarheid:** Het ondersteunt Dead Letter Queues (DLQ). Als een bericht na 3 pogingen nog niet is verzonden, wordt het veilig geparkeerd voor handmatige inspectie, zonder dat het systeem blokkeert.
+**Piekbelasting & Throttling (Rate Limiting):** Sommige messaging providers hanteren strikte limieten (bijv. max 10 berichten/seconde). Als de Scheduler om 09:00 uur duizenden notificaties tegelijk activeert, vangt RabbitMQ deze piek op als een stuwdam. De Workers bepalen zelf hun verwerkingstempo via de prefetch count, waardoor we de externe API's nooit overbelasten.
+
+**Foutafhandeling & DLQ (Eis 7):** Als een provider zoals SwiftSend een storing heeft, faalt de HTTP-call van de Worker. RabbitMQ houdt de taak dan vast via een NACK/Requeue mechanisme voor een automatische retry. Pas na 3 mislukte pogingen wordt het bericht naar een Dead Letter Queue (DLQ) verplaatst, zonder dat de rest van het systeem blokkeert.
 
 **Persistentie:** Berichten worden op schijf opgeslagen, zodat ze niet verloren gaan bij een herstart van de broker.
 
