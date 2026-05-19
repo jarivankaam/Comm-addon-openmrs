@@ -1,24 +1,20 @@
 package com.azaricomm.api.controller;
 
 import com.azaricomm.api.client.OpenMrsClient;
+import com.azaricomm.api.dto.CreateAppointmentRequest;
 import com.azaricomm.api.model.Appointment;
+import com.azaricomm.api.model.AppointmentStatus;
 import com.azaricomm.api.repository.AppointmentRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -49,9 +45,24 @@ public class AppointmentController {
     }
 
     @PostMapping
-    public ResponseEntity<Appointment> create(@RequestBody Appointment appointment) {
-        appointment.setStatus("SCHEDULED");
+    public ResponseEntity<Appointment> create(@Valid @RequestBody CreateAppointmentRequest request) {
+        Appointment appointment = new Appointment();
+
+        // Map DTO naar de Database Entiteit
+        appointment.setOrganizationId(request.getOrganizationId());
+        appointment.setScheduledTime(request.getScheduledTime());
+        appointment.setPatientId(request.getPatientId());
+        appointment.setPatientPhone(request.getPatientPhone());
+        appointment.setSubject(request.getSubject());
+        appointment.setLocation(request.getLocation());
+        appointment.setInstructions(request.getInstructions());
+        appointment.setProvider(request.getProvider());
+        appointment.setTimezone(request.getTimezone());
+
+        // Geforceerde backend logica
+        appointment.setStatus(AppointmentStatus.SCHEDULED);
         appointment.setCreatedAt(Instant.now());
+
         return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(appointment));
     }
 
@@ -66,7 +77,7 @@ public class AppointmentController {
     public ResponseEntity<Appointment> cancel(@PathVariable String id) {
         return repository.findById(id)
                 .map(a -> {
-                    a.setStatus("CANCELLED");
+                    a.setStatus(AppointmentStatus.CANCELLED);
                     return ResponseEntity.ok(repository.save(a));
                 })
                 .orElse(ResponseEntity.notFound().build());
@@ -109,7 +120,7 @@ public class AppointmentController {
         appointment.setCreatedAt(Instant.now());
 
         appointment.setPatientId(root.path("id").asText(null));
-        appointment.setAppointmentDateTime(root.path("start").asText(null));
+        appointment.setScheduledTime(root.path("start").asText(null));
         appointment.setStatus(mapFhirStatus(root.path("status").asText("booked")));
 
         JsonNode participants = root.path("participant");
@@ -138,12 +149,10 @@ public class AppointmentController {
                     if (uuid != null) appointment.setPatientId(uuid);
                     appointment.setPatientPhone(phone);
                     appointment.setSubject("Afspraakherinnering voor " + name);
-                    appointment.setBody("Beste " + name + ", u heeft een afspraak op "
-                            + root.path("start").asText("onbekend") + ".");
                 }
 
                 if ("Location".equalsIgnoreCase(type) || "HealthcareService".equalsIgnoreCase(type)) {
-                    appointment.setAppointmentLocation(display);
+                    appointment.setLocation(display);
                 }
             }
         }
@@ -151,12 +160,12 @@ public class AppointmentController {
         return appointment;
     }
 
-    private static String mapFhirStatus(String fhirStatus) {
+    private static AppointmentStatus mapFhirStatus(String fhirStatus) {
         return switch (fhirStatus.toLowerCase()) {
-            case "booked", "pending" -> "SCHEDULED";
-            case "cancelled", "noshow" -> "CANCELLED";
-            case "fulfilled" -> "SENT";
-            default -> "SCHEDULED";
+            case "booked", "pending" -> AppointmentStatus.SCHEDULED;
+            case "cancelled", "noshow" -> AppointmentStatus.CANCELLED;
+            case "fulfilled" -> AppointmentStatus.SENT;
+            default -> AppointmentStatus.SCHEDULED;
         };
     }
 
@@ -189,8 +198,8 @@ public class AppointmentController {
         sb.append("\n  ┌─ Appointment Summary ─────────────────────────\n");
         sb.append("  │ Patient ID: ").append(appointment.getPatientId()).append("\n");
         sb.append("  │ Status:     ").append(appointment.getStatus()).append("\n");
-        sb.append("  │ Start:      ").append(appointment.getAppointmentDateTime()).append("\n");
-        sb.append("  │ Location:   ").append(appointment.getAppointmentLocation()).append("\n");
+        sb.append("  │ Start:      ").append(appointment.getScheduledTime()).append("\n");
+        sb.append("  │ Location:   ").append(appointment.getLocation()).append("\n");
         sb.append("  │ Subject:    ").append(appointment.getSubject()).append("\n");
         sb.append("  └").append("─".repeat(48)).append("\n");
 
