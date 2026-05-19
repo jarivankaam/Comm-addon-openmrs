@@ -1,0 +1,13 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: azaricomm-api
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/azaricomm}
+
+logging:
+  level:
+    com.azaricomm: DEBUG
