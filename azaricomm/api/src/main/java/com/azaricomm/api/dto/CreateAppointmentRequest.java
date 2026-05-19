@@ -31,7 +31,6 @@ public class CreateAppointmentRequest {
     private String provider;
 
     private String instructions;
-    private String timezone;
 
     // Getters and Setters
     public String getOrganizationId() { return organizationId; }
@@ -57,7 +56,4 @@ public class CreateAppointmentRequest {
 
     public String getInstructions() { return instructions; }
     public void setInstructions(String instructions) { this.instructions = instructions; }
-
-    public String getTimezone() { return timezone; }
-    public void setTimezone(String timezone) { this.timezone = timezone; }
 }
