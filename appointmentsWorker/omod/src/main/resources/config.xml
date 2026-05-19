@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//OpenMRS//DTD OpenMRS Config 1.6//EN"
+        "https://resources.openmrs.org/doctype/config-1.6.dtd">
+<module configVersion="1.6">
+    <id>appointmentwebhook</id>
+    <name>Appointment FHIR Webhook</name>
+    <version>1.0.0-SNAPSHOT</version>
+    <package>org.openmrs.module.appointmentwebhook</package>
+    <author>Your Organisation</author>
+    <description>
+        Sends a FHIR R4 Appointment resource via HTTP POST when an
+        appointment is created or updated (Bahmni Appointments).
+    </description>
+    <activator>org.openmrs.module.appointmentwebhook.AppointmentWebhookActivator</activator>
+
+    <require_version>2.0.0 - 2.*</require_version>
+
+    <aware_of_modules>
+        <aware_of_module>org.bahmni.module.appointments</aware_of_module>
+    </aware_of_modules>
+
+    <!-- AOP: intercept Bahmni AppointmentsService -->
+    <advice>
+        <point>org.openmrs.module.appointments.service.AppointmentsService</point>
+        <class>org.openmrs.module.appointmentwebhook.advice.AppointmentCreationAdvice</class>
+    </advice>
+
+    <!-- Global Properties -->
+    <globalProperty>
+        <property>appointmentwebhook.endpoint.url</property>
+        <defaultValue></defaultValue>
+        <description>URL to POST the FHIR R4 Appointment resource to.</description>
+    </globalProperty>
+    <globalProperty>
+        <property>appointmentwebhook.endpoint.secret</property>
+        <defaultValue></defaultValue>
+        <description>HMAC-SHA256 signing secret for X-Webhook-Signature header.</description>
+    </globalProperty>
+    <globalProperty>
+        <property>appointmentwebhook.endpoint.timeout</property>
+        <defaultValue>10000</defaultValue>
+        <description>HTTP timeout in milliseconds (default 10000).</description>
+    </globalProperty>
+    <globalProperty>
+        <property>appointmentwebhook.enabled</property>
+        <defaultValue>true</defaultValue>
+        <description>Enable or disable the webhook (true/false).</description>
+    </globalProperty>
+    <globalProperty>
+        <property>appointmentwebhook.fhir.serverBase</property>
+        <defaultValue></defaultValue>
+        <description>FHIR server base URL for absolute references.</description>
+    </globalProperty>
+    <globalProperty>
+        <property>appointmentwebhook.messageProvider</property>
+        <defaultValue></defaultValue>
+        <description>Custom text value sent alongside the appointment data in the webhook payload (e.g. provider name, system identifier, or routing label).</description>
+    </globalProperty>
+</module>
