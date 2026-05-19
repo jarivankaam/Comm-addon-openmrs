@@ -15,9 +15,9 @@
 
     <require_version>2.0.0 - 2.*</require_version>
 
-    <require_modules>
-        <require_module>org.bahmni.module.appointments</require_module>
-    </require_modules>
+    <aware_of_modules>
+        <aware_of_module>org.bahmni.module.appointments</aware_of_module>
+    </aware_of_modules>
 
     <!-- AOP: intercept Bahmni AppointmentsService -->
     <advice>
@@ -50,5 +50,10 @@
         <property>appointmentwebhook.fhir.serverBase</property>
         <defaultValue></defaultValue>
         <description>FHIR server base URL for absolute references.</description>
+    </globalProperty>
+    <globalProperty>
+        <property>appointmentwebhook.messageProvider</property>
+        <defaultValue></defaultValue>
+        <description>Custom text value sent alongside the appointment data in the webhook payload (e.g. provider name, system identifier, or routing label).</description>
     </globalProperty>
 </module>

@@ -26,8 +26,12 @@ public class FhirAppointmentMapper {
 	
 	/**
 	 * Converts a Bahmni Appointment to FHIR R4 JSON.
+	 * 
+	 * @param src the Bahmni appointment
+	 * @param serverBase optional FHIR server base URL for absolute references
+	 * @param messageProvider optional custom text value included as an extension
 	 */
-	public static String toFhirJson(Appointment src, String serverBase) {
+	public static String toFhirJson(Appointment src, String serverBase, String messageProvider) {
         JsonWriter j = new JsonWriter();
 
         j.objectStart();
@@ -210,20 +214,36 @@ public class FhirAppointmentMapper {
 
         j.arrayEnd(); // participant
 
-        // ── extension: creator ────────────────────────────────────────
-        if (src.getCreator() != null) {
+        // ── extensions ────────────────────────────────────────────────
+        boolean hasCreator = src.getCreator() != null;
+        boolean hasMessageProvider = messageProvider != null && !messageProvider.trim().isEmpty();
+
+        if (hasCreator || hasMessageProvider) {
             j.key("extension").arrayStart();
-            j.objectStart();
-            j.key("url").value(OPENMRS_SYSTEM + "/extension/creator");
-            j.key("valueReference").objectStart();
-            j.key("reference").value(ref(serverBase, "Practitioner", src.getCreator().getUuid()));
-            if (src.getCreator().getPersonName() != null) {
-                j.key("display").value(src.getCreator().getPersonName().getFullName());
-            } else {
-                j.key("display").value(src.getCreator().getUsername());
+
+            // Creator extension
+            if (hasCreator) {
+                j.objectStart();
+                j.key("url").value(OPENMRS_SYSTEM + "/extension/creator");
+                j.key("valueReference").objectStart();
+                j.key("reference").value(ref(serverBase, "Practitioner", src.getCreator().getUuid()));
+                if (src.getCreator().getPersonName() != null) {
+                    j.key("display").value(src.getCreator().getPersonName().getFullName());
+                } else {
+                    j.key("display").value(src.getCreator().getUsername());
+                }
+                j.objectEnd();
+                j.objectEnd();
             }
-            j.objectEnd();
-            j.objectEnd();
+
+            // Message provider extension
+            if (hasMessageProvider) {
+                j.objectStart();
+                j.key("url").value(OPENMRS_SYSTEM + "/extension/messageProvider");
+                j.key("valueString").value(messageProvider.trim());
+                j.objectEnd();
+            }
+
             j.arrayEnd();
         }
 

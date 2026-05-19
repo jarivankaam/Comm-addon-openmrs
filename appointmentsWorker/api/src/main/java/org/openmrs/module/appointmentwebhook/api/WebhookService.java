@@ -39,6 +39,7 @@ public class WebhookService {
     public static final String GP_WEBHOOK_TIMEOUT  = "appointmentwebhook.endpoint.timeout";
     public static final String GP_WEBHOOK_ENABLED  = "appointmentwebhook.enabled";
     public static final String GP_FHIR_SERVER_BASE = "appointmentwebhook.fhir.serverBase";
+    public static final String GP_MESSAGE_PROVIDER = "appointmentwebhook.messageProvider";
 
     private static final int DEFAULT_TIMEOUT_MS = 10_000;
     private static final String FHIR_CONTENT_TYPE = "application/fhir+json; charset=UTF-8";
@@ -57,12 +58,16 @@ public class WebhookService {
             return;
         }
 
-        // Build JSON on calling thread (needs OpenMRS context)
-        String fhirJson = FhirAppointmentMapper.toFhirJson(appointment, getServerBase());
+        // Read ALL config on the calling thread (has OpenMRS context)
+        String messageProvider = getMessageProvider();
+        String fhirJson = FhirAppointmentMapper.toFhirJson(appointment, getServerBase(), messageProvider);
+        String secret = getWebhookSecret();
+        int timeout = getTimeout();
 
+        // Async thread — no Context calls allowed here
         executor.submit(() -> {
             try {
-                int status = sendPost(webhookUrl, fhirJson);
+                int status = sendPost(webhookUrl, fhirJson, secret, timeout);
                 log.info("Webhook sent for Appointment/" + appointment.getUuid()
                         + " → HTTP " + status
                         + " (" + fhirJson.length() + " chars)");
@@ -72,7 +77,7 @@ public class WebhookService {
         });
     }
 
-    private int sendPost(String webhookUrl, String fhirJson) throws IOException {
+    private int sendPost(String webhookUrl, String fhirJson, String secret, int timeout) throws IOException {
         HttpURLConnection conn = null;
         try {
             URL url = new URL(webhookUrl);
@@ -86,13 +91,11 @@ public class WebhookService {
             conn.setRequestProperty("X-FHIR-Version", "4.0.1");
             conn.setRequestProperty("Content-Encoding", "gzip");
 
-            String secret = getWebhookSecret();
             if (secret != null && !secret.trim().isEmpty()) {
                 String sig = hmacSha256(fhirJson, secret);
                 conn.setRequestProperty("X-Webhook-Signature", "sha256=" + sig);
             }
 
-            int timeout = getTimeout();
             conn.setConnectTimeout(timeout);
             conn.setReadTimeout(timeout);
 
@@ -156,6 +159,11 @@ public class WebhookService {
     private String getServerBase() {
         return Context.getAdministrationService()
                 .getGlobalProperty(GP_FHIR_SERVER_BASE, "");
+    }
+
+    private String getMessageProvider() {
+        return Context.getAdministrationService()
+                .getGlobalProperty(GP_MESSAGE_PROVIDER, "");
     }
 
     private int getTimeout() {
