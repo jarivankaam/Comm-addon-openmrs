@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -81,7 +82,16 @@ public class AppointmentController {
     public ResponseEntity<Appointment> cancel(@PathVariable String id) {
         return repository.findById(id)
                 .map(a -> {
+                    // Check if appointment isnt already cancelled.
+                    if (a.getStatus() == AppointmentStatus.CANCELLED) {
+                        throw new ResponseStatusException(
+                                HttpStatus.BAD_REQUEST,
+                                "This appointment is already cancelled."
+                        );
+                    }
+
                     a.setStatus(AppointmentStatus.CANCELLED);
+                    a.setExpireAt(Instant.now().plus(14, ChronoUnit.DAYS)); // 14 days from now.
                     return ResponseEntity.ok(repository.save(a));
                 })
                 .orElse(ResponseEntity.notFound().build());
