@@ -1,0 +1,26 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: azaricomm-api-service
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/azaricomm}
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+
+rabbitmq:
+  exchange: openmrs.events
+  queue: azaricomm.notifications
+  routing-key: notification.appointment
+
+webhook:
+  secret: ${WEBHOOK_SECRET:}
+
+logging:
+  level:
+    com.azaricomm: DEBUG
