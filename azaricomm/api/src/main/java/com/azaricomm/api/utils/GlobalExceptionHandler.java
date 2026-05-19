@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
         body.put("status", ex.getStatusCode().value());
         body.put("error", HttpStatus.valueOf(ex.getStatusCode().value()).getReasonPhrase());
         body.put("path", request.getRequestURI());
-        
+
         Map<String, String> errors = new LinkedHashMap<>();
         errors.put("appointment", ex.getReason());
         body.put("messages", errors);

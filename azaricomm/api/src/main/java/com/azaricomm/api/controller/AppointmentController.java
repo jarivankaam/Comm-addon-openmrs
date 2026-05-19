@@ -82,7 +82,7 @@ public class AppointmentController {
     public ResponseEntity<Appointment> cancel(@PathVariable String id) {
         return repository.findById(id)
                 .map(a -> {
-                    // Check if appointment isnt already cancelled.
+                    // Check status (Not already cancelled?)
                     if (a.getStatus() == AppointmentStatus.CANCELLED) {
                         throw new ResponseStatusException(
                                 HttpStatus.BAD_REQUEST,
@@ -90,8 +90,20 @@ public class AppointmentController {
                         );
                     }
 
+                    // Create new expire date.
+                    Instant newExpireAt = Instant.now().plus(14, ChronoUnit.DAYS);
+
+                    // Privacy/TTL check: THe new date may never exceed the old date.
+                    if (a.getExpireAt() != null && newExpireAt.isAfter(a.getExpireAt())) {
+                        throw new ResponseStatusException(
+                                HttpStatus.BAD_REQUEST,
+                                "Cannot cancel appointment: the new retention period would exceed the original privacy lifecycle."
+                        );
+                    }
+                    
                     a.setStatus(AppointmentStatus.CANCELLED);
-                    a.setExpireAt(Instant.now().plus(14, ChronoUnit.DAYS)); // 14 days from now.
+                    a.setExpireAt(newExpireAt);
+
                     return ResponseEntity.ok(repository.save(a));
                 })
                 .orElse(ResponseEntity.notFound().build());
