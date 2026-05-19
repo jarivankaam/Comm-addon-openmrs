@@ -1,28 +1,32 @@
 package com.azaricomm.api.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.Instant;
 
 @Document(collection = "appointments")
 public class Appointment {
+    private static final Logger log = LoggerFactory.getLogger(Appointment.class);
 
     @Id
     private String id;
 
     private String organizationId;
+    private String scheduledTime; // ISO 8601 string, e.g. "2026-05-20T10:00:00"
     private String patientId;
     private String patientPhone;
     private String subject;
-    private String body;
-    private String appointmentDateTime; // ISO 8601 string, e.g. "2026-05-20T10:00:00"
-    private String appointmentLocation;
+    private String location;
     private String instructions;
-    private String timezone;
     private String provider; // swiftsend, legacylink, asyncflow, securepost
+    private String timezone;
 
-    private String status; // SCHEDULED, QUEUED, SENT, CANCELLED, FAILED
+    @NotNull(message = "Status can only be: SCHEDULED, QUEUED, SENT, CANCELLED, or FAILED")
+    private AppointmentStatus status; // SCHEDULED, QUEUED, SENT, CANCELLED, FAILED
     private Instant createdAt;
 
     public String getId() { return id; }
@@ -40,14 +44,11 @@ public class Appointment {
     public String getSubject() { return subject; }
     public void setSubject(String subject) { this.subject = subject; }
 
-    public String getBody() { return body; }
-    public void setBody(String body) { this.body = body; }
+    public String getScheduledTime() { return scheduledTime; }
+    public void setScheduledTime(String scheduledTime) { this.scheduledTime = scheduledTime; }
 
-    public String getAppointmentDateTime() { return appointmentDateTime; }
-    public void setAppointmentDateTime(String appointmentDateTime) { this.appointmentDateTime = appointmentDateTime; }
-
-    public String getAppointmentLocation() { return appointmentLocation; }
-    public void setAppointmentLocation(String appointmentLocation) { this.appointmentLocation = appointmentLocation; }
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
 
     public String getInstructions() { return instructions; }
     public void setInstructions(String instructions) { this.instructions = instructions; }
@@ -58,8 +59,22 @@ public class Appointment {
     public String getProvider() { return provider; }
     public void setProvider(String provider) { this.provider = provider; }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public AppointmentStatus getStatus() { return status; }
+
+    public void setStatus(AppointmentStatus status) {
+        this.status = status;
+    }
+
+    // In case it isn't send as an enum.
+    public void setStatus(String status) {
+        if (status != null) {
+            try {
+                this.status = AppointmentStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                this.status = null;
+            }
+        }
+    }
 
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }

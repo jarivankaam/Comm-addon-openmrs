@@ -6,7 +6,15 @@ spring:
     name: azaricomm-api
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb://localhost:27017/azaricomm}
+      uri: ${MONGODB_URI:mongodb://localhost:27017/openmrs}
+
+webhook:
+  secret: ${WEBHOOK_SECRET:}
+
+openmrs:
+  base-url: ${OPENMRS_BASE_URL:http://localhost:8081}
+  username: ${OPENMRS_USERNAME:admin}
+  password: ${OPENMRS_PASSWORD:Admin123}
 
 logging:
   level:
