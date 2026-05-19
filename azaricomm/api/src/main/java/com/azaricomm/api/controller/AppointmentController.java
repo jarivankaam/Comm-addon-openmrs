@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -22,6 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.zip.GZIPInputStream;
 
 @RestController
@@ -48,7 +50,7 @@ public class AppointmentController {
     public ResponseEntity<Appointment> create(@Valid @RequestBody CreateAppointmentRequest request) {
         Appointment appointment = new Appointment();
 
-        // Map DTO naar de Database Entiteit
+        // Map DTO to the DB entity
         appointment.setOrganizationId(request.getOrganizationId());
         appointment.setScheduledTime(request.getScheduledTime());
         appointment.setPatientId(request.getPatientId());
@@ -59,9 +61,12 @@ public class AppointmentController {
         appointment.setProvider(request.getProvider());
         appointment.setTimezone(request.getTimezone());
 
-        // Geforceerde backend logica
+        // Forced backend logica
         appointment.setStatus(AppointmentStatus.SCHEDULED);
         appointment.setCreatedAt(Instant.now());
+
+        // Create TTL-index of 14 days after scheduledTime.
+        appointment.setExpireAt(request.getScheduledTime().plus(14, ChronoUnit.DAYS));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(appointment));
     }
@@ -77,7 +82,28 @@ public class AppointmentController {
     public ResponseEntity<Appointment> cancel(@PathVariable String id) {
         return repository.findById(id)
                 .map(a -> {
+                    // Check status (Not already cancelled?)
+                    if (a.getStatus() == AppointmentStatus.CANCELLED) {
+                        throw new ResponseStatusException(
+                                HttpStatus.BAD_REQUEST,
+                                "This appointment is already cancelled."
+                        );
+                    }
+
+                    // Create new expire date.
+                    Instant newExpireAt = Instant.now().plus(14, ChronoUnit.DAYS);
+
+                    // Privacy/TTL check: THe new date may never exceed the old date.
+                    if (a.getExpireAt() != null && newExpireAt.isAfter(a.getExpireAt())) {
+                        throw new ResponseStatusException(
+                                HttpStatus.BAD_REQUEST,
+                                "Cannot cancel appointment: the new retention period would exceed the original privacy lifecycle."
+                        );
+                    }
+                    
                     a.setStatus(AppointmentStatus.CANCELLED);
+                    a.setExpireAt(newExpireAt);
+
                     return ResponseEntity.ok(repository.save(a));
                 })
                 .orElse(ResponseEntity.notFound().build());
@@ -120,7 +146,21 @@ public class AppointmentController {
         appointment.setCreatedAt(Instant.now());
 
         appointment.setPatientId(root.path("id").asText(null));
-        appointment.setScheduledTime(root.path("start").asText(null));
+        String fhirStartText = root.path("start").asText(null);
+        if (fhirStartText != null && !fhirStartText.isBlank()) {
+            try {
+                java.time.OffsetDateTime odt = java.time.OffsetDateTime.parse(fhirStartText);
+                Instant parsedTime = odt.toInstant();
+
+                appointment.setScheduledTime(parsedTime);
+                appointment.setExpireAt(parsedTime.plus(14, ChronoUnit.DAYS));
+            } catch (Exception e) {
+                log.error("Failed to parse OpenMRS scheduledTime string: " + fhirStartText, e);
+                Instant fallback = Instant.now();
+                appointment.setScheduledTime(fallback);
+                appointment.setExpireAt(fallback.plus(14, ChronoUnit.DAYS));
+            }
+        }
         appointment.setStatus(mapFhirStatus(root.path("status").asText("booked")));
 
         JsonNode participants = root.path("participant");

@@ -1,19 +1,19 @@
 package com.azaricomm.api.dto;
 
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.NotNull;
+
+import java.time.Instant;
 
 public class CreateAppointmentRequest {
 
     @NotBlank(message = "OrganisationId is required")
     private String organizationId;
 
-    @NotBlank(message = "ScheduledTime is required")
-    @Pattern(
-            regexp = "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
-            message = "ScheduledTime must be a valid ISO 8601 string (e.g., 2026-05-20T10:00:00 or 2026-05-20T10:00:00Z)"
-    )
-    private String scheduledTime;
+    @NotNull(message = "ScheduledTime is required")
+    @Future(message = "ScheduledTime must be a future date and time")
+    private Instant scheduledTime;
 
     @NotBlank(message = "PatientId is required")
     private String patientId;
@@ -37,8 +37,8 @@ public class CreateAppointmentRequest {
     public String getOrganizationId() { return organizationId; }
     public void setOrganizationId(String organizationId) { this.organizationId = organizationId; }
 
-    public String getScheduledTime() { return scheduledTime; }
-    public void setScheduledTime(String scheduledTime) { this.scheduledTime = scheduledTime; }
+    public Instant getScheduledTime() { return scheduledTime; }
+    public void setScheduledTime(Instant scheduledTime) { this.scheduledTime = scheduledTime; }
 
     public String getPatientId() { return patientId; }
     public void setPatientId(String patientId) { this.patientId = patientId; }
