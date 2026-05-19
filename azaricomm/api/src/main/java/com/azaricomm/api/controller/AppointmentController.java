@@ -6,6 +6,7 @@ import com.azaricomm.api.repository.AppointmentRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,7 +50,7 @@ public class AppointmentController {
     }
 
     @PostMapping
-    public ResponseEntity<Appointment> create(@RequestBody Appointment appointment) {
+    public ResponseEntity<Appointment> create(@Valid @RequestBody Appointment appointment) {
         appointment.setStatus("SCHEDULED");
         appointment.setCreatedAt(Instant.now());
         return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(appointment));
