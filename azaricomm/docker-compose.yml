@@ -22,6 +22,11 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   api:
     build:
@@ -30,12 +35,19 @@ services:
     ports:
       - "8080:8080"
     environment:
+      MONGODB_URI: mongodb://mongodb:27017/azaricomm
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-}
+      OPENMRS_BASE_URL: ${OPENMRS_BASE_URL:-http://localhost:8081}
+      OPENMRS_USERNAME: ${OPENMRS_USERNAME:-admin}
+      OPENMRS_PASSWORD: ${OPENMRS_PASSWORD:-Admin123}
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       RABBITMQ_USERNAME: guest
       RABBITMQ_PASSWORD: guest
     depends_on:
       rabbitmq:
+        condition: service_healthy
+      mongodb:
         condition: service_healthy
 
   communication-service:
