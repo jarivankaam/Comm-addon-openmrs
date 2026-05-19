@@ -65,9 +65,7 @@ public class AppointmentController {
         appointment.setCreatedAt(Instant.now());
 
         // Create TTL-index of 14 days after scheduledTime.
-        Instant appointmentTime = Instant.parse(request.getScheduledTime());
-        Instant deleteTime = appointmentTime.plus(14, ChronoUnit.DAYS);
-        appointment.setExpireAt(deleteTime);
+        appointment.setExpireAt(request.getScheduledTime().plus(14, ChronoUnit.DAYS));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(appointment));
     }
@@ -126,7 +124,21 @@ public class AppointmentController {
         appointment.setCreatedAt(Instant.now());
 
         appointment.setPatientId(root.path("id").asText(null));
-        appointment.setScheduledTime(root.path("start").asText(null));
+        String fhirStartText = root.path("start").asText(null);
+        if (fhirStartText != null && !fhirStartText.isBlank()) {
+            try {
+                java.time.OffsetDateTime odt = java.time.OffsetDateTime.parse(fhirStartText);
+                Instant parsedTime = odt.toInstant();
+
+                appointment.setScheduledTime(parsedTime);
+                appointment.setExpireAt(parsedTime.plus(14, ChronoUnit.DAYS));
+            } catch (Exception e) {
+                log.error("Failed to parse OpenMRS scheduledTime string: " + fhirStartText, e);
+                Instant fallback = Instant.now();
+                appointment.setScheduledTime(fallback);
+                appointment.setExpireAt(fallback.plus(14, ChronoUnit.DAYS));
+            }
+        }
         appointment.setStatus(mapFhirStatus(root.path("status").asText("booked")));
 
         JsonNode participants = root.path("participant");

@@ -14,7 +14,7 @@ public class Appointment {
     private String id;
 
     private String organizationId;
-    private String scheduledTime; // ISO 8601 string, e.g. "2026-05-20T10:00:00"
+    private Instant scheduledTime;
     private String patientId;
     private String patientPhone;
     private String subject;
@@ -45,8 +45,8 @@ public class Appointment {
     public String getSubject() { return subject; }
     public void setSubject(String subject) { this.subject = subject; }
 
-    public String getScheduledTime() { return scheduledTime; }
-    public void setScheduledTime(String scheduledTime) { this.scheduledTime = scheduledTime; }
+    public Instant getScheduledTime() { return scheduledTime; }
+    public void setScheduledTime(Instant scheduledTime) { this.scheduledTime = scheduledTime; }
 
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
