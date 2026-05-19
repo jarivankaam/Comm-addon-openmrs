@@ -23,6 +23,21 @@ services:
     volumes:
       - mongodb_data:/data/db
 
+  api:
+    build:
+      context: ./api
+    container_name: azaricomm-api
+    ports:
+      - "8080:8080"
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: guest
+      RABBITMQ_PASSWORD: guest
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
   communication-service:
     build:
       context: ./communication-service

@@ -44,7 +44,7 @@ public class ProviderRouter {
         String providerName = message.getProvider();
 
         if (providerName == null || providerName.isBlank()) {
-            log.error("No provider specified in notification for patient {}", message.getPatientUuid());
+            log.error("No provider specified in notification for patient {}", message.getPatientId());
             return DeliveryResult.failure("unknown", "No provider specified in notification");
         }
 
@@ -56,7 +56,7 @@ public class ProviderRouter {
         }
 
         log.info("Routing notification to provider '{}' for org '{}', patient '{}'",
-                providerName, message.getOrganizationId(), message.getPatientUuid());
+                providerName, message.getOrganizationId(), message.getPatientId());
 
         return provider.send(message);
     }

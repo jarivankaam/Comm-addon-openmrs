@@ -1,24 +1,32 @@
-package com.azaricomm.model;
+package com.azaricomm.api.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.io.Serializable;
+import java.time.Instant;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class NotificationMessage implements Serializable {
+@Document(collection = "appointments")
+public class Appointment {
+
+    @Id
+    private String id;
 
     private String organizationId;
     private String patientId;
     private String patientPhone;
     private String subject;
     private String body;
-    private String appointmentId;
-    private String appointmentDateTime;
+    private String appointmentDateTime; // ISO 8601 string, e.g. "2026-05-20T10:00:00"
     private String appointmentLocation;
     private String instructions;
     private String timezone;
-    private String notificationType;
     private String provider; // swiftsend, legacylink, asyncflow, securepost
+
+    private String status; // SCHEDULED, QUEUED, SENT, CANCELLED, FAILED
+    private Instant createdAt;
+
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getOrganizationId() { return organizationId; }
     public void setOrganizationId(String organizationId) { this.organizationId = organizationId; }
@@ -35,9 +43,6 @@ public class NotificationMessage implements Serializable {
     public String getBody() { return body; }
     public void setBody(String body) { this.body = body; }
 
-    public String getAppointmentId() { return appointmentId; }
-    public void setAppointmentId(String appointmentId) { this.appointmentId = appointmentId; }
-
     public String getAppointmentDateTime() { return appointmentDateTime; }
     public void setAppointmentDateTime(String appointmentDateTime) { this.appointmentDateTime = appointmentDateTime; }
 
@@ -50,21 +55,12 @@ public class NotificationMessage implements Serializable {
     public String getTimezone() { return timezone; }
     public void setTimezone(String timezone) { this.timezone = timezone; }
 
-    public String getNotificationType() { return notificationType; }
-    public void setNotificationType(String notificationType) { this.notificationType = notificationType; }
-
     public String getProvider() { return provider; }
     public void setProvider(String provider) { this.provider = provider; }
 
-    @Override
-    public String toString() {
-        return "NotificationMessage{" +
-                "org='" + organizationId + '\'' +
-                ", patient='" + patientId + '\'' +
-                ", phone='" + patientPhone + '\'' +
-                ", type='" + notificationType + '\'' +
-                ", provider='" + provider + '\'' +
-                ", appointment='" + appointmentId + '\'' +
-                '}';
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public Instant getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
 }

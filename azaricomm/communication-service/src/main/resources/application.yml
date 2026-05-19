@@ -11,7 +11,7 @@ spring:
     password: ${RABBITMQ_PASSWORD:guest}
 
 rabbitmq:
-  exchange: openmrs.events
+  exchange: azaricomm.events
   queue: azaricomm.notifications
   routing-key: "notification.#"
 
