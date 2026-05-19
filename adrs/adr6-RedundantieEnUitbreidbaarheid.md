@@ -28,7 +28,7 @@ Door de fysieke scheiding van componenten in ons C4-model kunnen we redundantie 
 
 ### 2. Uitbreidbaarheid (Extensibility)
 
-* **OpenMRS Modules (Eis 12):** De API en MongoDB maken gebruik van het flexibele HL7 FHIR-formaat. Als er in de toekomst een module voor "Medische testresultaten" (bijv. `Observation` of `DiagnosticReport` resources) wordt toegevoegd, kan deze via dezelfde API-ingang en database-architectuur stromen zonder dat de infrastructuur op de schop moet.
+* **OpenMRS Modules (Eis 12):** De API en MongoDB maken gebruik van het flexibele HL7 FHIR-formaat. Als er in de toekomst een module voor "Medische testresultaten" (bijv. `Observation` of `DiagnosticReport` resources) wordt toegevoegd, kan deze via dezelfde API-ingang en database-architectuur stromen zonder dat de infrastructuur veranderd moet worden.
 * **Messaging Providers (Eis 3):** Binnen de Worker applicatie wordt een abstracte `MessagingProvider` interface gedefinieerd. Het toevoegen van een nieuwe provider (bijv. SwiftSend of een toekomstige provider) vereist enkel het schrijven van een nieuwe concrete adapterklasse. De API, Database en Scheduler blijven volledig ongewijzigd.
 
 ## Overwogen alternatieven
