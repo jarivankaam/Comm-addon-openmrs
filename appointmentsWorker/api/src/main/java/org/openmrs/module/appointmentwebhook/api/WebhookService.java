@@ -32,151 +32,145 @@ import java.util.zip.GZIPOutputStream;
  */
 public class WebhookService {
 
-    private static final Log log = LogFactory.getLog(WebhookService.class);
+	private static final Log log = LogFactory.getLog(WebhookService.class);
 
-    public static final String GP_WEBHOOK_URL      = "appointmentwebhook.endpoint.url";
-    public static final String GP_WEBHOOK_SECRET   = "appointmentwebhook.endpoint.secret";
-    public static final String GP_WEBHOOK_TIMEOUT  = "appointmentwebhook.endpoint.timeout";
-    public static final String GP_WEBHOOK_ENABLED  = "appointmentwebhook.enabled";
-    public static final String GP_FHIR_SERVER_BASE = "appointmentwebhook.fhir.serverBase";
-    public static final String GP_MESSAGE_PROVIDER = "appointmentwebhook.messageProvider";
+	public static final String GP_WEBHOOK_URL      = "appointmentwebhook.endpoint.url";
+	public static final String GP_WEBHOOK_SECRET   = "appointmentwebhook.endpoint.secret";
+	public static final String GP_WEBHOOK_TIMEOUT  = "appointmentwebhook.endpoint.timeout";
+	public static final String GP_WEBHOOK_ENABLED  = "appointmentwebhook.enabled";
+	public static final String GP_FHIR_SERVER_BASE = "appointmentwebhook.fhir.serverBase";
+	public static final String GP_MESSAGE_PROVIDER = "appointmentwebhook.messageProvider";
 
-    private static final int DEFAULT_TIMEOUT_MS = 10_000;
-    private static final String FHIR_CONTENT_TYPE = "application/fhir+json; charset=UTF-8";
+	private static final int DEFAULT_TIMEOUT_MS = 10_000;
+	private static final String FHIR_CONTENT_TYPE = "application/fhir+json; charset=UTF-8";
 
-    private final ExecutorService executor = Executors.newFixedThreadPool(3);
+	private final ExecutorService executor = Executors.newFixedThreadPool(3);
 
-    public void sendAppointmentAsync(Appointment appointment) {
-        if (!isEnabled()) {
-            log.debug("Webhook disabled — skipping.");
-            return;
-        }
+	public void sendAppointmentAsync(Appointment appointment) {
+		if (!isEnabled()) {
+			log.debug("Webhook disabled — skipping.");
+			return;
+		}
 
-        String webhookUrl = getWebhookUrl();
-        if (webhookUrl == null || webhookUrl.trim().isEmpty()) {
-            log.warn("Webhook URL not configured. Set: " + GP_WEBHOOK_URL);
-            return;
-        }
+		String webhookUrl = getWebhookUrl();
+		if (webhookUrl == null || webhookUrl.trim().isEmpty()) {
+			log.warn("Webhook URL not configured. Set: " + GP_WEBHOOK_URL);
+			return;
+		}
 
-        // Read ALL config on the calling thread (has OpenMRS context)
-        String messageProvider = getMessageProvider();
-        String fhirJson = FhirAppointmentMapper.toFhirJson(appointment, getServerBase(), messageProvider);
-        String secret = getWebhookSecret();
-        int timeout = getTimeout();
+		// Read ALL config on the calling thread (has OpenMRS context)
+		String fhirJson = FhirAppointmentMapper.toFhirJson(appointment, getServerBase(), getMessageProvider());
+		String secret = getWebhookSecret();
+		int timeout = getTimeout();
 
-        // Async thread — no Context calls allowed here
-        executor.submit(() -> {
-            try {
-                int status = sendPost(webhookUrl, fhirJson, secret, timeout);
-                log.info("Webhook sent for Appointment/" + appointment.getUuid()
-                        + " → HTTP " + status
-                        + " (" + fhirJson.length() + " chars)");
-            } catch (Exception e) {
-                log.error("Webhook failed for Appointment/" + appointment.getUuid(), e);
-            }
-        });
-    }
+		// Async thread — no Context calls allowed here
+		executor.submit(() -> {
+			try {
+				int status = sendPost(webhookUrl, fhirJson, secret, timeout);
+				log.info("Webhook sent for Appointment/" + appointment.getUuid()
+						+ " → HTTP " + status
+						+ " (" + fhirJson.length() + " chars)");
+			} catch (Exception e) {
+				log.error("Webhook failed for Appointment/" + appointment.getUuid(), e);
+			}
+		});
+	}
 
-    private int sendPost(String webhookUrl, String fhirJson, String secret, int timeout) throws IOException {
-        HttpURLConnection conn = null;
-        try {
-            URL url = new URL(webhookUrl);
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setDoOutput(true);
+	private int sendPost(String webhookUrl, String fhirJson, String secret, int timeout) throws IOException {
+		byte[] body = gzip(fhirJson.getBytes(StandardCharsets.UTF_8));
 
-            conn.setRequestProperty("Content-Type", FHIR_CONTENT_TYPE);
-            conn.setRequestProperty("Accept", "application/fhir+json");
-            conn.setRequestProperty("User-Agent", "OpenMRS-AppointmentWebhook/1.0");
-            conn.setRequestProperty("X-FHIR-Version", "4.0.1");
-            conn.setRequestProperty("Content-Encoding", "gzip");
+		HttpURLConnection conn = null;
+		try {
+			conn = (HttpURLConnection) new URL(webhookUrl).openConnection();
+			conn.setRequestMethod("POST");
+			conn.setDoOutput(true);
+			conn.setConnectTimeout(timeout);
+			conn.setReadTimeout(timeout);
+			setRequestHeaders(conn, fhirJson, secret, body.length);
 
-            if (secret != null && !secret.trim().isEmpty()) {
-                String sig = hmacSha256(fhirJson, secret);
-                conn.setRequestProperty("X-Webhook-Signature", "sha256=" + sig);
-            }
+			try (OutputStream os = conn.getOutputStream()) {
+				os.write(body);
+			}
 
-            conn.setConnectTimeout(timeout);
-            conn.setReadTimeout(timeout);
+			int code = conn.getResponseCode();
+			if (code < 200 || code >= 300) {
+				log.error("Webhook returned HTTP " + code + " for: " + webhookUrl);
+			}
+			return code;
+		} finally {
+			if (conn != null) conn.disconnect();
+		}
+	}
 
-            byte[] compressed = gzip(fhirJson.getBytes(StandardCharsets.UTF_8));
-            conn.setRequestProperty("Content-Length", String.valueOf(compressed.length));
+	private void setRequestHeaders(HttpURLConnection conn, String fhirJson, String secret, int contentLength) {
+		conn.setRequestProperty("Content-Type", FHIR_CONTENT_TYPE);
+		conn.setRequestProperty("Accept", "application/fhir+json");
+		conn.setRequestProperty("User-Agent", "OpenMRS-AppointmentWebhook/1.0");
+		conn.setRequestProperty("X-FHIR-Version", "4.0.1");
+		conn.setRequestProperty("Content-Encoding", "gzip");
+		conn.setRequestProperty("Content-Length", String.valueOf(contentLength));
+		if (secret != null && !secret.trim().isEmpty()) {
+			conn.setRequestProperty("X-Webhook-Signature", "sha256=" + hmacSha256(fhirJson, secret));
+		}
+	}
 
-            try (OutputStream os = conn.getOutputStream()) {
-                os.write(compressed);
-            }
+	private byte[] gzip(byte[] data) throws IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream(data.length / 2);
+		try (GZIPOutputStream gz = new GZIPOutputStream(baos)) {
+			gz.write(data);
+		}
+		return baos.toByteArray();
+	}
 
-            int code = conn.getResponseCode();
-            if (code < 200 || code >= 300) {
-                log.error("Webhook returned HTTP " + code + " for: " + webhookUrl);
-            }
-            return code;
+	private String hmacSha256(String data, String secret) {
+		try {
+			Mac mac = Mac.getInstance("HmacSHA256");
+			mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+			byte[] hash = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+			StringBuilder hex = new StringBuilder(hash.length * 2);
+			for (byte b : hash) hex.append(String.format("%02x", b));
+			return hex.toString();
+		} catch (Exception e) {
+			log.error("HMAC computation failed", e);
+			return "";
+		}
+	}
 
-        } finally {
-            if (conn != null) conn.disconnect();
-        }
-    }
+	// ── Config readers ────────────────────────────────────────────────
 
-    private byte[] gzip(byte[] data) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(data.length / 2);
-        try (GZIPOutputStream gz = new GZIPOutputStream(baos)) {
-            gz.write(data);
-        }
-        return baos.toByteArray();
-    }
+	private boolean isEnabled() {
+		return "true".equalsIgnoreCase(getGlobalProperty(GP_WEBHOOK_ENABLED, "true").trim());
+	}
 
-    private String hmacSha256(String data, String secret) {
-        try {
-            Mac mac = Mac.getInstance("HmacSHA256");
-            mac.init(new SecretKeySpec(
-                    secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
-            byte[] hash = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-            StringBuilder hex = new StringBuilder(hash.length * 2);
-            for (byte b : hash) hex.append(String.format("%02x", b));
-            return hex.toString();
-        } catch (Exception e) {
-            log.error("HMAC computation failed", e);
-            return "";
-        }
-    }
+	private String getWebhookUrl() {
+		return getGlobalProperty(GP_WEBHOOK_URL, "");
+	}
 
-    private boolean isEnabled() {
-        return "true".equalsIgnoreCase(
-                Context.getAdministrationService()
-                        .getGlobalProperty(GP_WEBHOOK_ENABLED, "true").trim());
-    }
+	private String getWebhookSecret() {
+		return getGlobalProperty(GP_WEBHOOK_SECRET, "");
+	}
 
-    private String getWebhookUrl() {
-        return Context.getAdministrationService()
-                .getGlobalProperty(GP_WEBHOOK_URL, "");
-    }
+	private String getServerBase() {
+		return getGlobalProperty(GP_FHIR_SERVER_BASE, "");
+	}
 
-    private String getWebhookSecret() {
-        return Context.getAdministrationService()
-                .getGlobalProperty(GP_WEBHOOK_SECRET, "");
-    }
+	private String getMessageProvider() {
+		return getGlobalProperty(GP_MESSAGE_PROVIDER, "");
+	}
 
-    private String getServerBase() {
-        return Context.getAdministrationService()
-                .getGlobalProperty(GP_FHIR_SERVER_BASE, "");
-    }
+	private int getTimeout() {
+		try {
+			return Integer.parseInt(getGlobalProperty(GP_WEBHOOK_TIMEOUT, String.valueOf(DEFAULT_TIMEOUT_MS)).trim());
+		} catch (NumberFormatException e) {
+			return DEFAULT_TIMEOUT_MS;
+		}
+	}
 
-    private String getMessageProvider() {
-        return Context.getAdministrationService()
-                .getGlobalProperty(GP_MESSAGE_PROVIDER, "");
-    }
+	private String getGlobalProperty(String key, String defaultValue) {
+		return Context.getAdministrationService().getGlobalProperty(key, defaultValue);
+	}
 
-    private int getTimeout() {
-        try {
-            return Integer.parseInt(Context.getAdministrationService()
-                    .getGlobalProperty(GP_WEBHOOK_TIMEOUT,
-                            String.valueOf(DEFAULT_TIMEOUT_MS)).trim());
-        } catch (NumberFormatException e) {
-            return DEFAULT_TIMEOUT_MS;
-        }
-    }
-
-    public void shutdown() {
-        executor.shutdown();
-    }
+	public void shutdown() {
+		executor.shutdown();
+	}
 }
