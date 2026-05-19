@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.zip.GZIPInputStream;
 
 @RestController
@@ -62,6 +63,11 @@ public class AppointmentController {
         // Forced backend logica
         appointment.setStatus(AppointmentStatus.SCHEDULED);
         appointment.setCreatedAt(Instant.now());
+
+        // Create TTL-index of 14 days after scheduledTime.
+        Instant appointmentTime = Instant.parse(request.getScheduledTime());
+        Instant deleteTime = appointmentTime.plus(14, ChronoUnit.DAYS);
+        appointment.setExpireAt(deleteTime);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(appointment));
     }

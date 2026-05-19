@@ -1,8 +1,7 @@
 package com.azaricomm.api.model;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import jakarta.validation.constraints.NotNull;
 
@@ -10,7 +9,6 @@ import java.time.Instant;
 
 @Document(collection = "appointments")
 public class Appointment {
-    private static final Logger log = LoggerFactory.getLogger(Appointment.class);
 
     @Id
     private String id;
@@ -28,6 +26,9 @@ public class Appointment {
     @NotNull(message = "Status can only be: SCHEDULED, QUEUED, SENT, CANCELLED, or FAILED")
     private AppointmentStatus status; // SCHEDULED, QUEUED, SENT, CANCELLED, FAILED
     private Instant createdAt;
+
+    @Indexed(expireAfterSeconds = 0)
+    private Instant expireAt;
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -78,4 +79,8 @@ public class Appointment {
 
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+
+    public Instant getExpireAt() {return expireAt;}
+
+    public void setExpireAt(Instant expireAt) {this.expireAt = expireAt;}
 }
