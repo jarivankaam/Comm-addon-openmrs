@@ -30,12 +30,7 @@ public class AppointmentCreationAdvice implements AfterReturningAdvice {
 	
 	@Override
 	public void afterReturning(Object returnValue, Method method, Object[] args, Object target) throws Throwable {
-		
-		String name = method.getName();
-		if (!"validateAndSave".equals(name)) {
-			return;
-		}
-		if (!(returnValue instanceof Appointment)) {
+		if (!"validateAndSave".equals(method.getName()) || !(returnValue instanceof Appointment)) {
 			return;
 		}
 		

@@ -32,225 +32,222 @@ public class FhirAppointmentMapper {
 	 * @param messageProvider optional custom text value included as an extension
 	 */
 	public static String toFhirJson(Appointment src, String serverBase, String messageProvider) {
-        JsonWriter j = new JsonWriter();
-
-        j.objectStart();
-
-        // ── resourceType & id ─────────────────────────────────────────
-        j.key("resourceType").value("Appointment");
-        j.key("id").value(src.getUuid());
-
-        // ── meta ──────────────────────────────────────────────────────
-        j.key("meta").objectStart();
-        j.key("versionId").value("1");
-        if (src.getDateChanged() != null) {
-            j.key("lastUpdated").dateValue(src.getDateChanged());
-        } else if (src.getDateCreated() != null) {
-            j.key("lastUpdated").dateValue(src.getDateCreated());
-        }
-        j.key("profile").arrayStart();
-        j.value("http://hl7.org/fhir/StructureDefinition/Appointment");
-        j.arrayEnd();
-        j.objectEnd();
-
-        // ── status ────────────────────────────────────────────────────
-        j.key("status").value(mapStatus(src.getStatus()));
-
-        // ── serviceType (from AppointmentServiceDefinition) ───────────
-        AppointmentServiceDefinition service = src.getService();
-        if (service != null) {
-            j.key("serviceType").arrayStart();
-            j.objectStart();
-            j.key("coding").arrayStart();
-            j.objectStart();
-            j.key("system").value(OPENMRS_SYSTEM + "/appointment-service");
-            j.key("code").value(service.getUuid());
-            j.key("display").value(service.getName());
-            j.objectEnd();
-            j.arrayEnd();
-            if (service.getDescription() != null) {
-                j.key("text").value(service.getDescription());
-            }
-            j.objectEnd();
-            j.arrayEnd();
-        }
-
-        // ── serviceCategory (from AppointmentServiceType) ─────────────
-        AppointmentServiceType serviceType = src.getServiceType();
-        if (serviceType != null) {
-            j.key("serviceCategory").arrayStart();
-            j.objectStart();
-            j.key("coding").arrayStart();
-            j.objectStart();
-            j.key("system").value(OPENMRS_SYSTEM + "/appointment-service-type");
-            j.key("code").value(serviceType.getUuid());
-            j.key("display").value(serviceType.getName());
-            j.objectEnd();
-            j.arrayEnd();
-            j.objectEnd();
-            j.arrayEnd();
-        }
-
-        // ── appointmentType (Walk-In vs Scheduled) ────────────────────
-        AppointmentKind kind = src.getAppointmentKind();
-        if (kind != null) {
-            j.key("appointmentType").objectStart();
-            j.key("coding").arrayStart();
-            j.objectStart();
-            j.key("system").value(OPENMRS_SYSTEM + "/appointment-kind");
-            j.key("code").value(kind.name());
-            j.key("display").value(kind.name());
-            j.objectEnd();
-            j.arrayEnd();
-            j.objectEnd();
-        }
-
-        // ── priority (0 = routine) ───────────────────────────────────
-        j.key("priority").value(0);
-
-        // ── comment ───────────────────────────────────────────────────
-        if (src.getComments() != null && !src.getComments().isEmpty()) {
-            j.key("comment").value(src.getComments());
-        }
-
-        // ── start / end / minutesDuration ─────────────────────────────
-        if (src.getStartDateTime() != null) {
-            j.key("start").dateValue(src.getStartDateTime());
-        }
-        if (src.getEndDateTime() != null) {
-            j.key("end").dateValue(src.getEndDateTime());
-        }
-        if (src.getStartDateTime() != null && src.getEndDateTime() != null) {
-            long mins = (src.getEndDateTime().getTime() - src.getStartDateTime().getTime()) / 60_000;
-            j.key("minutesDuration").value((int) mins);
-        }
-
-        // ── created ──────────────────────────────────────────────────
-        if (src.getDateCreated() != null) {
-            j.key("created").dateValue(src.getDateCreated());
-        }
-
-        // ── participant[] ─────────────────────────────────────────────
-        j.key("participant").arrayStart();
-
-        // 1) Patient
-        Patient patient = src.getPatient();
-        if (patient != null) {
-            j.objectStart();
-            writeParticipantType(j, "SBJ", "subject");
-
-            j.key("actor").objectStart();
-            j.key("reference").value(ref(serverBase, "Patient", patient.getUuid()));
-            j.key("type").value("Patient");
-
-            PersonName name = patient.getPersonName();
-            if (name != null) {
-                j.key("display").value(name.getFullName());
-            }
-
-            PatientIdentifier pid = patient.getPatientIdentifier();
-            if (pid != null) {
-                j.key("identifier").objectStart();
-                j.key("system").value(OPENMRS_SYSTEM + "/patient-identifier/"
-                        + (pid.getIdentifierType() != null
-                        ? pid.getIdentifierType().getUuid() : "default"));
-                j.key("value").value(pid.getIdentifier());
-                j.objectEnd();
-            }
-            j.objectEnd(); // actor
-
-            j.key("required").value("required");
-            j.key("status").value("accepted");
-            j.objectEnd(); // participant
-        }
-
-        // 2) Providers (Bahmni supports multiple providers per appointment)
-        Set<AppointmentProvider> providers = src.getProviders();
-        if (providers != null) {
-            for (AppointmentProvider ap : providers) {
-                Provider provider = ap.getProvider();
-                if (provider == null) continue;
-
-                j.objectStart();
-                writeParticipantType(j, "ATND", "attender");
-
-                j.key("actor").objectStart();
-                j.key("reference").value(ref(serverBase, "Practitioner", provider.getUuid()));
-                j.key("type").value("Practitioner");
-                if (provider.getName() != null) {
-                    j.key("display").value(provider.getName());
-                }
-                if (provider.getIdentifier() != null) {
-                    j.key("identifier").objectStart();
-                    j.key("system").value(OPENMRS_SYSTEM + "/provider-identifier");
-                    j.key("value").value(provider.getIdentifier());
-                    j.objectEnd();
-                }
-                j.objectEnd(); // actor
-
-                j.key("required").value("required");
-                // Map provider response to FHIR participation status
-                j.key("status").value(mapProviderResponse(ap));
-                j.objectEnd(); // participant
-            }
-        }
-
-        // 3) Location
-        Location location = src.getLocation();
-        if (location != null) {
-            j.objectStart();
-            writeParticipantType(j, "LOC", "location");
-
-            j.key("actor").objectStart();
-            j.key("reference").value(ref(serverBase, "Location", location.getUuid()));
-            j.key("type").value("Location");
-            j.key("display").value(location.getName());
-            j.objectEnd(); // actor
-
-            j.key("required").value("required");
-            j.key("status").value("accepted");
-            j.objectEnd(); // participant
-        }
-
-        j.arrayEnd(); // participant
-
-        // ── extensions ────────────────────────────────────────────────
-        boolean hasCreator = src.getCreator() != null;
-        boolean hasMessageProvider = messageProvider != null && !messageProvider.trim().isEmpty();
-
-        if (hasCreator || hasMessageProvider) {
-            j.key("extension").arrayStart();
-
-            // Creator extension
-            if (hasCreator) {
-                j.objectStart();
-                j.key("url").value(OPENMRS_SYSTEM + "/extension/creator");
-                j.key("valueReference").objectStart();
-                j.key("reference").value(ref(serverBase, "Practitioner", src.getCreator().getUuid()));
-                if (src.getCreator().getPersonName() != null) {
-                    j.key("display").value(src.getCreator().getPersonName().getFullName());
-                } else {
-                    j.key("display").value(src.getCreator().getUsername());
-                }
-                j.objectEnd();
-                j.objectEnd();
-            }
-
-            // Message provider extension
-            if (hasMessageProvider) {
-                j.objectStart();
-                j.key("url").value(OPENMRS_SYSTEM + "/extension/messageProvider");
-                j.key("valueString").value(messageProvider.trim());
-                j.objectEnd();
-            }
-
-            j.arrayEnd();
-        }
-
-        j.objectEnd(); // root
-
-        return j.toString();
-    }
+		JsonWriter j = new JsonWriter();
+		
+		j.objectStart();
+		j.key("resourceType").value("Appointment");
+		j.key("id").value(src.getUuid());
+		writeMeta(j, src);
+		j.key("status").value(mapStatus(src.getStatus()));
+		writeServiceType(j, src.getService());
+		writeServiceCategory(j, src.getServiceType());
+		writeAppointmentKind(j, src.getAppointmentKind());
+		j.key("priority").value(0);
+		if (src.getComments() != null && !src.getComments().isEmpty()) {
+			j.key("comment").value(src.getComments());
+		}
+		writeTimings(j, src);
+		writeParticipants(j, src, serverBase);
+		writeExtensions(j, src, serverBase, messageProvider);
+		j.objectEnd();
+		
+		return j.toString();
+	}
+	
+	private static void writeMeta(JsonWriter j, Appointment src) {
+		j.key("meta").objectStart();
+		j.key("versionId").value("1");
+		if (src.getDateChanged() != null) {
+			j.key("lastUpdated").dateValue(src.getDateChanged());
+		} else if (src.getDateCreated() != null) {
+			j.key("lastUpdated").dateValue(src.getDateCreated());
+		}
+		j.key("profile").arrayStart();
+		j.value("http://hl7.org/fhir/StructureDefinition/Appointment");
+		j.arrayEnd();
+		j.objectEnd();
+	}
+	
+	private static void writeServiceType(JsonWriter j, AppointmentServiceDefinition service) {
+		if (service == null) {
+			return;
+		}
+		j.key("serviceType").arrayStart();
+		j.objectStart();
+		j.key("coding").arrayStart();
+		j.objectStart();
+		j.key("system").value(OPENMRS_SYSTEM + "/appointment-service");
+		j.key("code").value(service.getUuid());
+		j.key("display").value(service.getName());
+		j.objectEnd();
+		j.arrayEnd();
+		if (service.getDescription() != null) {
+			j.key("text").value(service.getDescription());
+		}
+		j.objectEnd();
+		j.arrayEnd();
+	}
+	
+	private static void writeServiceCategory(JsonWriter j, AppointmentServiceType serviceType) {
+		if (serviceType == null) {
+			return;
+		}
+		j.key("serviceCategory").arrayStart();
+		j.objectStart();
+		j.key("coding").arrayStart();
+		j.objectStart();
+		j.key("system").value(OPENMRS_SYSTEM + "/appointment-service-type");
+		j.key("code").value(serviceType.getUuid());
+		j.key("display").value(serviceType.getName());
+		j.objectEnd();
+		j.arrayEnd();
+		j.objectEnd();
+		j.arrayEnd();
+	}
+	
+	private static void writeAppointmentKind(JsonWriter j, AppointmentKind kind) {
+		if (kind == null) {
+			return;
+		}
+		j.key("appointmentType").objectStart();
+		j.key("coding").arrayStart();
+		j.objectStart();
+		j.key("system").value(OPENMRS_SYSTEM + "/appointment-kind");
+		j.key("code").value(kind.name());
+		j.key("display").value(kind.name());
+		j.objectEnd();
+		j.arrayEnd();
+		j.objectEnd();
+	}
+	
+	private static void writeTimings(JsonWriter j, Appointment src) {
+		if (src.getStartDateTime() != null) {
+			j.key("start").dateValue(src.getStartDateTime());
+		}
+		if (src.getEndDateTime() != null) {
+			j.key("end").dateValue(src.getEndDateTime());
+		}
+		if (src.getStartDateTime() != null && src.getEndDateTime() != null) {
+			long mins = (src.getEndDateTime().getTime() - src.getStartDateTime().getTime()) / 60_000;
+			j.key("minutesDuration").value((int) mins);
+		}
+		if (src.getDateCreated() != null) {
+			j.key("created").dateValue(src.getDateCreated());
+		}
+	}
+	
+	private static void writeParticipants(JsonWriter j, Appointment src, String serverBase) {
+		j.key("participant").arrayStart();
+		writePatientParticipant(j, src.getPatient(), serverBase);
+		writeProviderParticipants(j, src.getProviders(), serverBase);
+		writeLocationParticipant(j, src.getLocation(), serverBase);
+		j.arrayEnd();
+	}
+	
+	private static void writePatientParticipant(JsonWriter j, Patient patient, String serverBase) {
+		if (patient == null) {
+			return;
+		}
+		j.objectStart();
+		writeParticipantType(j, "SBJ", "subject");
+		j.key("actor").objectStart();
+		j.key("reference").value(ref(serverBase, "Patient", patient.getUuid()));
+		j.key("type").value("Patient");
+		PersonName name = patient.getPersonName();
+		if (name != null) {
+			j.key("display").value(name.getFullName());
+		}
+		PatientIdentifier pid = patient.getPatientIdentifier();
+		if (pid != null) {
+			j.key("identifier").objectStart();
+			j.key("system").value(
+			    OPENMRS_SYSTEM + "/patient-identifier/"
+			            + (pid.getIdentifierType() != null ? pid.getIdentifierType().getUuid() : "default"));
+			j.key("value").value(pid.getIdentifier());
+			j.objectEnd();
+		}
+		j.objectEnd();
+		j.key("required").value("required");
+		j.key("status").value("accepted");
+		j.objectEnd();
+	}
+	
+	private static void writeProviderParticipants(JsonWriter j, Set<AppointmentProvider> providers, String serverBase) {
+		if (providers == null) {
+			return;
+		}
+		for (AppointmentProvider ap : providers) {
+			Provider provider = ap.getProvider();
+			if (provider == null) {
+				continue;
+			}
+			j.objectStart();
+			writeParticipantType(j, "ATND", "attender");
+			j.key("actor").objectStart();
+			j.key("reference").value(ref(serverBase, "Practitioner", provider.getUuid()));
+			j.key("type").value("Practitioner");
+			if (provider.getName() != null) {
+				j.key("display").value(provider.getName());
+			}
+			if (provider.getIdentifier() != null) {
+				j.key("identifier").objectStart();
+				j.key("system").value(OPENMRS_SYSTEM + "/provider-identifier");
+				j.key("value").value(provider.getIdentifier());
+				j.objectEnd();
+			}
+			j.objectEnd();
+			j.key("required").value("required");
+			j.key("status").value(mapProviderResponse(ap));
+			j.objectEnd();
+		}
+	}
+	
+	private static void writeLocationParticipant(JsonWriter j, Location location, String serverBase) {
+		if (location == null) {
+			return;
+		}
+		j.objectStart();
+		writeParticipantType(j, "LOC", "location");
+		j.key("actor").objectStart();
+		j.key("reference").value(ref(serverBase, "Location", location.getUuid()));
+		j.key("type").value("Location");
+		j.key("display").value(location.getName());
+		j.objectEnd();
+		j.key("required").value("required");
+		j.key("status").value("accepted");
+		j.objectEnd();
+	}
+	
+	private static void writeExtensions(JsonWriter j, Appointment src, String serverBase, String messageProvider) {
+		boolean hasCreator = src.getCreator() != null;
+		boolean hasMessageProvider = messageProvider != null && !messageProvider.trim().isEmpty();
+		
+		if (!hasCreator && !hasMessageProvider) {
+			return;
+		}
+		
+		j.key("extension").arrayStart();
+		if (hasCreator) {
+			j.objectStart();
+			j.key("url").value(OPENMRS_SYSTEM + "/extension/creator");
+			j.key("valueReference").objectStart();
+			j.key("reference").value(ref(serverBase, "Practitioner", src.getCreator().getUuid()));
+			if (src.getCreator().getPersonName() != null) {
+				j.key("display").value(src.getCreator().getPersonName().getFullName());
+			} else {
+				j.key("display").value(src.getCreator().getUsername());
+			}
+			j.objectEnd();
+			j.objectEnd();
+		}
+		if (hasMessageProvider) {
+			j.objectStart();
+			j.key("url").value(OPENMRS_SYSTEM + "/extension/messageProvider");
+			j.key("valueString").value(messageProvider.trim());
+			j.objectEnd();
+		}
+		j.arrayEnd();
+	}
 	
 	// ── Helpers ───────────────────────────────────────────────────────
 	
