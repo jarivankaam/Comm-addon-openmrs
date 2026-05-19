@@ -48,7 +48,7 @@ public class AppointmentController {
     public ResponseEntity<Appointment> create(@Valid @RequestBody CreateAppointmentRequest request) {
         Appointment appointment = new Appointment();
 
-        // Map DTO naar de Database Entiteit
+        // Map DTO to the DB entity
         appointment.setOrganizationId(request.getOrganizationId());
         appointment.setScheduledTime(request.getScheduledTime());
         appointment.setPatientId(request.getPatientId());
@@ -59,7 +59,7 @@ public class AppointmentController {
         appointment.setProvider(request.getProvider());
         appointment.setTimezone(request.getTimezone());
 
-        // Geforceerde backend logica
+        // Forced backend logica
         appointment.setStatus(AppointmentStatus.SCHEDULED);
         appointment.setCreatedAt(Instant.now());
 
