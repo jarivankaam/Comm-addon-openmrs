@@ -12,16 +12,16 @@ public class Appointment {
     private String id;
 
     private String organizationId;
+    private String scheduledTime; // ISO 8601 string, e.g. "2026-05-20T10:00:00"
+
     private String patientId;
     private String patientPhone;
     private String subject;
-    private String body;
-    private String appointmentDateTime; // ISO 8601 string, e.g. "2026-05-20T10:00:00"
-    private String appointmentLocation;
+    private String location;
     private String instructions;
-    private String timezone;
     private String provider; // swiftsend, legacylink, asyncflow, securepost
 
+    private String timezone;
     private String status; // SCHEDULED, QUEUED, SENT, CANCELLED, FAILED
     private Instant createdAt;
 
@@ -39,15 +39,12 @@ public class Appointment {
 
     public String getSubject() { return subject; }
     public void setSubject(String subject) { this.subject = subject; }
+    
+    public String getScheduledTime() { return scheduledTime; }
+    public void setScheduledTime(String scheduledTime) { this.scheduledTime = scheduledTime; }
 
-    public String getBody() { return body; }
-    public void setBody(String body) { this.body = body; }
-
-    public String getAppointmentDateTime() { return appointmentDateTime; }
-    public void setAppointmentDateTime(String appointmentDateTime) { this.appointmentDateTime = appointmentDateTime; }
-
-    public String getAppointmentLocation() { return appointmentLocation; }
-    public void setAppointmentLocation(String appointmentLocation) { this.appointmentLocation = appointmentLocation; }
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
 
     public String getInstructions() { return instructions; }
     public void setInstructions(String instructions) { this.instructions = instructions; }

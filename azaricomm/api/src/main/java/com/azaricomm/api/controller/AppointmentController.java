@@ -109,7 +109,7 @@ public class AppointmentController {
         appointment.setCreatedAt(Instant.now());
 
         appointment.setPatientId(root.path("id").asText(null));
-        appointment.setAppointmentDateTime(root.path("start").asText(null));
+        appointment.setScheduledTime(root.path("start").asText(null));
         appointment.setStatus(mapFhirStatus(root.path("status").asText("booked")));
 
         JsonNode participants = root.path("participant");
@@ -138,12 +138,10 @@ public class AppointmentController {
                     if (uuid != null) appointment.setPatientId(uuid);
                     appointment.setPatientPhone(phone);
                     appointment.setSubject("Afspraakherinnering voor " + name);
-                    appointment.setBody("Beste " + name + ", u heeft een afspraak op "
-                            + root.path("start").asText("onbekend") + ".");
                 }
 
                 if ("Location".equalsIgnoreCase(type) || "HealthcareService".equalsIgnoreCase(type)) {
-                    appointment.setAppointmentLocation(display);
+                    appointment.setLocation(display);
                 }
             }
         }
@@ -189,8 +187,8 @@ public class AppointmentController {
         sb.append("\n  ┌─ Appointment Summary ─────────────────────────\n");
         sb.append("  │ Patient ID: ").append(appointment.getPatientId()).append("\n");
         sb.append("  │ Status:     ").append(appointment.getStatus()).append("\n");
-        sb.append("  │ Start:      ").append(appointment.getAppointmentDateTime()).append("\n");
-        sb.append("  │ Location:   ").append(appointment.getAppointmentLocation()).append("\n");
+        sb.append("  │ Start:      ").append(appointment.getScheduledTime()).append("\n");
+        sb.append("  │ Location:   ").append(appointment.getLocation()).append("\n");
         sb.append("  │ Subject:    ").append(appointment.getSubject()).append("\n");
         sb.append("  └").append("─".repeat(48)).append("\n");
 
