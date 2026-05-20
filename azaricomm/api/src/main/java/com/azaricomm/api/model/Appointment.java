@@ -20,11 +20,12 @@ public class Appointment {
     private String subject;
     private String location;
     private String instructions;
-    private String provider; // swiftsend, legacylink, asyncflow, securepost
+    private String provider;
     private String timezone;
 
     @NotNull(message = "Status can only be: SCHEDULED, QUEUED, SENT, CANCELLED, or FAILED")
     private AppointmentStatus status; // SCHEDULED, QUEUED, SENT, CANCELLED, FAILED
+    private NotificationTimeline notifications = new NotificationTimeline();
     private Instant createdAt;
 
     @Indexed(expireAfterSeconds = 0)
@@ -76,6 +77,9 @@ public class Appointment {
             }
         }
     }
+
+    public NotificationTimeline getNotifications() { return notifications; }
+    public void setNotifications(NotificationTimeline notifications) { this.notifications = notifications; }
 
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
