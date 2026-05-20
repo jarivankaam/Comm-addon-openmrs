@@ -2,6 +2,7 @@ package com.azaricomm.api.controller;
 
 import com.azaricomm.api.client.OpenMrsClient;
 import com.azaricomm.api.dto.CreateAppointmentRequest;
+import com.azaricomm.api.metrics.ApiMetrics;
 import com.azaricomm.api.model.Appointment;
 import com.azaricomm.api.model.AppointmentStatus;
 import com.azaricomm.api.repository.AppointmentRepository;
@@ -35,22 +36,23 @@ public class AppointmentController {
     private final AppointmentRepository repository;
     private final ObjectMapper objectMapper;
     private final OpenMrsClient openMrsClient;
+    private final ApiMetrics apiMetrics;
 
     @Value("${webhook.secret:}")
     private String webhookSecret;
 
     public AppointmentController(AppointmentRepository repository, ObjectMapper objectMapper,
-                                 OpenMrsClient openMrsClient) {
+                                 OpenMrsClient openMrsClient, ApiMetrics apiMetrics) {
         this.repository = repository;
         this.objectMapper = objectMapper;
         this.openMrsClient = openMrsClient;
+        this.apiMetrics = apiMetrics;
     }
 
     @PostMapping
     public ResponseEntity<Appointment> create(@Valid @RequestBody CreateAppointmentRequest request) {
         Appointment appointment = new Appointment();
 
-        // Map DTO to the DB entity
         appointment.setOrganizationId(request.getOrganizationId());
         appointment.setScheduledTime(request.getScheduledTime());
         appointment.setPatientId(request.getPatientId());
@@ -60,14 +62,14 @@ public class AppointmentController {
         appointment.setInstructions(request.getInstructions());
         appointment.setProvider(request.getProvider());
 
-        // Forced backend logica
         appointment.setStatus(AppointmentStatus.SCHEDULED);
         appointment.setCreatedAt(Instant.now());
-
-        // Create TTL-index of 14 days after scheduledTime.
         appointment.setExpireAt(request.getScheduledTime().plus(14, ChronoUnit.DAYS));
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(appointment));
+        Appointment saved = repository.save(appointment);
+        apiMetrics.recordAppointmentReceived(request.getOrganizationId());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @GetMapping("/{id}")
@@ -81,7 +83,6 @@ public class AppointmentController {
     public ResponseEntity<Appointment> cancel(@PathVariable String id) {
         return repository.findById(id)
                 .map(a -> {
-                    // Check status (Not already cancelled?)
                     if (a.getStatus() == AppointmentStatus.CANCELLED) {
                         throw new ResponseStatusException(
                                 HttpStatus.BAD_REQUEST,
@@ -89,21 +90,22 @@ public class AppointmentController {
                         );
                     }
 
-                    // Create new expire date.
                     Instant newExpireAt = Instant.now().plus(14, ChronoUnit.DAYS);
 
-                    // Privacy/TTL check: THe new date may never exceed the old date.
                     if (a.getExpireAt() != null && newExpireAt.isAfter(a.getExpireAt())) {
                         throw new ResponseStatusException(
                                 HttpStatus.BAD_REQUEST,
                                 "Cannot cancel appointment: the new retention period would exceed the original privacy lifecycle."
                         );
                     }
-                    
+
                     a.setStatus(AppointmentStatus.CANCELLED);
                     a.setExpireAt(newExpireAt);
 
-                    return ResponseEntity.ok(repository.save(a));
+                    Appointment saved = repository.save(a);
+                    apiMetrics.recordAppointmentCancelled(a.getOrganizationId());
+
+                    return ResponseEntity.ok(saved);
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -133,6 +135,8 @@ public class AppointmentController {
 
         Appointment appointment = mapFhirToAppointment(json);
         repository.save(appointment);
+        apiMetrics.recordAppointmentReceived(appointment.getOrganizationId());
+
         logWebhookPayload(request.getRemoteAddr(), contentEncoding, rawBytes.length, bodyBytes.length, json, appointment);
 
         return ResponseEntity.ok("{\"status\":\"received\"}");
