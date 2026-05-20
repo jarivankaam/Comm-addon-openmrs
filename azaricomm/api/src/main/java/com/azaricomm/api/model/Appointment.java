@@ -1,6 +1,7 @@
 package com.azaricomm.api.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import jakarta.validation.constraints.NotNull;
@@ -15,19 +16,27 @@ public class Appointment {
 
     private String organizationId;
     private Instant scheduledTime;
-    private String patientId;
-    private String patientPhone;
-    private String subject;
-    private String location;
-    private String instructions;
-    private String provider; // swiftsend, legacylink, asyncflow, securepost
+
+    private String dataEncrypted;
+    private String locationEncrypted;
+
+    private String timezone;
 
     @NotNull(message = "Status can only be: SCHEDULED, QUEUED, SENT, CANCELLED, or FAILED")
     private AppointmentStatus status; // SCHEDULED, QUEUED, SENT, CANCELLED, FAILED
+    private NotificationTimeline notifications = new NotificationTimeline();
     private Instant createdAt;
 
     @Indexed(expireAfterSeconds = 0)
     private Instant expireAt;
+
+    // @transient makes it "invisible" for the database
+    @Transient private String patientId;
+    @Transient private String patientPhone;
+    @Transient private String subject;
+    @Transient private String location;
+    @Transient private String instructions;
+    @Transient private String provider;
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -35,6 +44,42 @@ public class Appointment {
     public String getOrganizationId() { return organizationId; }
     public void setOrganizationId(String organizationId) { this.organizationId = organizationId; }
 
+    public String getDataEncrypted() { return dataEncrypted; }
+    public void setDataEncrypted(String dataEncrypted) { this.dataEncrypted = dataEncrypted; }
+    public String getLocationEncrypted() { return locationEncrypted; }
+    public void setLocationEncrypted(String locationEncrypted) { this.locationEncrypted = locationEncrypted; }
+
+    public String getTimezone() { return timezone;}
+    public void setTimezone(String timezone) {this.timezone = timezone;}
+
+    public AppointmentStatus getStatus() { return status; }
+
+    public void setStatus(AppointmentStatus status) {
+        this.status = status;
+    }
+
+    // In case it isn't send as an enum.
+    public void setStatus(String status) {
+        if (status != null) {
+            try {
+                this.status = AppointmentStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                this.status = null;
+            }
+        }
+    }
+
+    public NotificationTimeline getNotifications() { return notifications; }
+    public void setNotifications(NotificationTimeline notifications) { this.notifications = notifications; }
+
+    public Instant getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+
+    public Instant getExpireAt() {return expireAt;}
+
+    public void setExpireAt(Instant expireAt) {this.expireAt = expireAt;}
+
+    // Transient getters/setters
     public String getPatientId() { return patientId; }
     public void setPatientId(String patientId) { this.patientId = patientId; }
 
@@ -55,28 +100,4 @@ public class Appointment {
 
     public String getProvider() { return provider; }
     public void setProvider(String provider) { this.provider = provider; }
-
-    public AppointmentStatus getStatus() { return status; }
-
-    public void setStatus(AppointmentStatus status) {
-        this.status = status;
-    }
-
-    // In case it isn't send as an enum.
-    public void setStatus(String status) {
-        if (status != null) {
-            try {
-                this.status = AppointmentStatus.valueOf(status.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                this.status = null;
-            }
-        }
-    }
-
-    public Instant getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
-
-    public Instant getExpireAt() {return expireAt;}
-
-    public void setExpireAt(Instant expireAt) {this.expireAt = expireAt;}
 }

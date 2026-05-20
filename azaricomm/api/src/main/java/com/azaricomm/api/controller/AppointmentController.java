@@ -1,6 +1,7 @@
 package com.azaricomm.api.controller;
 
 import com.azaricomm.api.client.OpenMrsClient;
+import com.azaricomm.api.dto.AppointmentCreatedResponse;
 import com.azaricomm.api.dto.CreateAppointmentRequest;
 import com.azaricomm.api.metrics.ApiMetrics;
 import com.azaricomm.api.model.Appointment;
@@ -50,7 +51,7 @@ public class AppointmentController {
     }
 
     @PostMapping
-    public ResponseEntity<Appointment> create(@Valid @RequestBody CreateAppointmentRequest request) {
+    public ResponseEntity<AppointmentCreatedResponse> create(@Valid @RequestBody CreateAppointmentRequest request) {
         Appointment appointment = new Appointment();
 
         appointment.setOrganizationId(request.getOrganizationId());
@@ -61,15 +62,24 @@ public class AppointmentController {
         appointment.setLocation(request.getLocation());
         appointment.setInstructions(request.getInstructions());
         appointment.setProvider(request.getProvider());
+        appointment.setTimezone(request.getTimezone());
 
         appointment.setStatus(AppointmentStatus.SCHEDULED);
         appointment.setCreatedAt(Instant.now());
         appointment.setExpireAt(request.getScheduledTime().plus(14, ChronoUnit.DAYS));
 
-        Appointment saved = repository.save(appointment);
-        apiMetrics.recordAppointmentReceived(request.getOrganizationId());
+        // Save the appointment in the database.
+        Appointment savedAppointment = repository.save(appointment);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        // Create a secured response (no privacy data)
+        AppointmentCreatedResponse response = new AppointmentCreatedResponse(
+                savedAppointment.getId(),
+                savedAppointment.getStatus(),
+                savedAppointment.getCreatedAt(),
+                "Appointment successfully created"
+        );
+        apiMetrics.recordAppointmentReceived(request.getOrganizationId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")
@@ -100,6 +110,7 @@ public class AppointmentController {
                     }
 
                     a.setStatus(AppointmentStatus.CANCELLED);
+
                     a.setExpireAt(newExpireAt);
 
                     Appointment saved = repository.save(a);

@@ -1,5 +1,7 @@
 package com.azaricomm.api.dto;
 
+import com.azaricomm.api.validation.ValidProvider;
+import com.azaricomm.api.validation.ValidTimeZone;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -28,7 +30,12 @@ public class CreateAppointmentRequest {
     private String location;
 
     @NotBlank(message = "Provider is required")
+    @ValidProvider
     private String provider;
+
+    @NotBlank(message = "TimeZone is required")
+    @ValidTimeZone()
+    private String timezone;
 
     private String instructions;
 
@@ -53,6 +60,9 @@ public class CreateAppointmentRequest {
 
     public String getProvider() { return provider; }
     public void setProvider(String provider) { this.provider = provider; }
+
+    public String getTimezone() { return timezone; }
+    public void setTimezone(String timezone) { this.timezone = timezone; }
 
     public String getInstructions() { return instructions; }
     public void setInstructions(String instructions) { this.instructions = instructions; }

@@ -16,6 +16,9 @@ openmrs:
   username: ${OPENMRS_USERNAME:admin}
   password: ${OPENMRS_PASSWORD:Admin123}
 
+crypto:
+  secret-key: ${CRYPTO_SECRET_KEY:DitIsMijnSuperGeheimeSleutel123!}
+#  Deze sleutel moet exact 32 tekens zijn
 logging:
   level:
     com.azaricomm: DEBUG
