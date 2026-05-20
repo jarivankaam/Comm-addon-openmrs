@@ -3,6 +3,7 @@ package com.azaricomm.consumer;
 import com.azaricomm.model.DeliveryResult;
 import com.azaricomm.model.NotificationMessage;
 import com.azaricomm.provider.ProviderRouter;
+import com.azaricomm.service.NotificationValidationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +16,13 @@ public class NotificationConsumer {
     private static final Logger log = LoggerFactory.getLogger(NotificationConsumer.class);
 
     private final ProviderRouter providerRouter;
+    private final NotificationValidationService validationService;
     private final ObjectMapper objectMapper;
 
-    public NotificationConsumer(ProviderRouter providerRouter) {
+    public NotificationConsumer(ProviderRouter providerRouter,
+                               NotificationValidationService validationService) {
         this.providerRouter = providerRouter;
+        this.validationService = validationService;
         this.objectMapper = new ObjectMapper();
     }
 
@@ -30,6 +34,16 @@ public class NotificationConsumer {
             NotificationMessage message = objectMapper.readValue(messageBody, NotificationMessage.class);
             log.info("Parsed notification: {}", message);
 
+            // Validate message before routing
+            if (!validationService.validateMessage(message)) {
+                log.warn("Notification validation failed, discarding message: {}", message);
+                return;
+            }
+
+            // Mark as sent in database
+            validationService.markNotificationAsSent(message.getAppointmentId(), message.getNotificationType());
+
+            // Route to appropriate provider
             DeliveryResult result = providerRouter.route(message);
 
             if (result.isSuccess()) {
