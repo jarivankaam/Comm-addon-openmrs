@@ -5,7 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="90eb1199-a705-447d-8d14-c0e62a6a5e52" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/controller/AppointmentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/controller/AppointmentController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/validation/TimeZoneValidator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/validation/ValidTimeZone.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/dto/CreateAppointmentRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/dto/CreateAppointmentRequest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -16,6 +19,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Enum" />
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
@@ -28,6 +32,9 @@
   &quot;associatedIndex&quot;: 5
 }</component>
   <component name="ProjectId" id="3DypVLm97SYpR48IQKRwFYs132L" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
