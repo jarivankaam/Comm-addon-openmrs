@@ -1,6 +1,7 @@
 package com.azaricomm.api.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import jakarta.validation.constraints.NotNull;
@@ -15,12 +16,10 @@ public class Appointment {
 
     private String organizationId;
     private Instant scheduledTime;
-    private String patientId;
-    private String patientPhone;
-    private String subject;
-    private String location;
-    private String instructions;
-    private String provider;
+
+    private String dataEncrypted;
+    private String locationEncrypted;
+
     private String timezone;
 
     @NotNull(message = "Status can only be: SCHEDULED, QUEUED, SENT, CANCELLED, or FAILED")
@@ -31,32 +30,24 @@ public class Appointment {
     @Indexed(expireAfterSeconds = 0)
     private Instant expireAt;
 
+    // @transient makes it "invisible" for the database
+    @Transient private String patientId;
+    @Transient private String patientPhone;
+    @Transient private String subject;
+    @Transient private String location;
+    @Transient private String instructions;
+    @Transient private String provider;
+
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
     public String getOrganizationId() { return organizationId; }
     public void setOrganizationId(String organizationId) { this.organizationId = organizationId; }
 
-    public String getPatientId() { return patientId; }
-    public void setPatientId(String patientId) { this.patientId = patientId; }
-
-    public String getPatientPhone() { return patientPhone; }
-    public void setPatientPhone(String patientPhone) { this.patientPhone = patientPhone; }
-
-    public String getSubject() { return subject; }
-    public void setSubject(String subject) { this.subject = subject; }
-
-    public Instant getScheduledTime() { return scheduledTime; }
-    public void setScheduledTime(Instant scheduledTime) { this.scheduledTime = scheduledTime; }
-
-    public String getLocation() { return location; }
-    public void setLocation(String location) { this.location = location; }
-
-    public String getInstructions() { return instructions; }
-    public void setInstructions(String instructions) { this.instructions = instructions; }
-
-    public String getProvider() { return provider; }
-    public void setProvider(String provider) { this.provider = provider; }
+    public String getDataEncrypted() { return dataEncrypted; }
+    public void setDataEncrypted(String dataEncrypted) { this.dataEncrypted = dataEncrypted; }
+    public String getLocationEncrypted() { return locationEncrypted; }
+    public void setLocationEncrypted(String locationEncrypted) { this.locationEncrypted = locationEncrypted; }
 
     public String getTimezone() { return timezone;}
     public void setTimezone(String timezone) {this.timezone = timezone;}
@@ -87,4 +78,26 @@ public class Appointment {
     public Instant getExpireAt() {return expireAt;}
 
     public void setExpireAt(Instant expireAt) {this.expireAt = expireAt;}
+
+    // Transient getters/setters
+    public String getPatientId() { return patientId; }
+    public void setPatientId(String patientId) { this.patientId = patientId; }
+
+    public String getPatientPhone() { return patientPhone; }
+    public void setPatientPhone(String patientPhone) { this.patientPhone = patientPhone; }
+
+    public String getSubject() { return subject; }
+    public void setSubject(String subject) { this.subject = subject; }
+
+    public Instant getScheduledTime() { return scheduledTime; }
+    public void setScheduledTime(Instant scheduledTime) { this.scheduledTime = scheduledTime; }
+
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
+
+    public String getInstructions() { return instructions; }
+    public void setInstructions(String instructions) { this.instructions = instructions; }
+
+    public String getProvider() { return provider; }
+    public void setProvider(String provider) { this.provider = provider; }
 }
