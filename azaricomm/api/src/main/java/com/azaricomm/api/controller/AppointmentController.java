@@ -185,10 +185,11 @@ public class AppointmentController {
                 String display = actor.path("display").asText("");
                 String reference = actor.path("reference").asText("");
 
+                String s = reference.contains("/")
+                        ? reference.substring(reference.lastIndexOf('/') + 1)
+                        : reference;
                 if ("Patient".equalsIgnoreCase(type)) {
-                    String patientRef = reference.contains("/")
-                            ? reference.substring(reference.lastIndexOf('/') + 1)
-                            : reference;
+                    String patientRef = s;
                     appointment.setPatientId(patientRef);
 
                     String identifier = actor.path("identifier").path("value").asText(null);
@@ -205,6 +206,11 @@ public class AppointmentController {
 
                 if ("Location".equalsIgnoreCase(type) || "HealthcareService".equalsIgnoreCase(type)) {
                     appointment.setLocation(display);
+                }
+
+                if ("Organization".equalsIgnoreCase(type) && !reference.isBlank()) {
+                    String orgId = s;
+                    appointment.setOrganizationId(orgId);
                 }
             }
         }
