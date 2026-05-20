@@ -59,6 +59,7 @@ public class AppointmentController {
         appointment.setLocation(request.getLocation());
         appointment.setInstructions(request.getInstructions());
         appointment.setProvider(request.getProvider());
+        appointment.setTimezone(request.getTimezone());
 
         // Forced backend logica
         appointment.setStatus(AppointmentStatus.SCHEDULED);

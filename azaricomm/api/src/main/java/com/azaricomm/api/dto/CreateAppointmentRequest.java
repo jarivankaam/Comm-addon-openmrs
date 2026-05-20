@@ -30,6 +30,8 @@ public class CreateAppointmentRequest {
     @NotBlank(message = "Provider is required")
     private String provider;
 
+    private String timezone;
+
     private String instructions;
 
     // Getters and Setters
@@ -53,6 +55,9 @@ public class CreateAppointmentRequest {
 
     public String getProvider() { return provider; }
     public void setProvider(String provider) { this.provider = provider; }
+
+    public String getTimezone() { return timezone; }
+    public void setTimezone(String timezone) { this.timezone = timezone; }
 
     public String getInstructions() { return instructions; }
     public void setInstructions(String instructions) { this.instructions = instructions; }

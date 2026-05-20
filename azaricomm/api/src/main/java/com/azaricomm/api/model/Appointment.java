@@ -21,6 +21,7 @@ public class Appointment {
     private String location;
     private String instructions;
     private String provider; // swiftsend, legacylink, asyncflow, securepost
+    private String timezone;
 
     @NotNull(message = "Status can only be: SCHEDULED, QUEUED, SENT, CANCELLED, or FAILED")
     private AppointmentStatus status; // SCHEDULED, QUEUED, SENT, CANCELLED, FAILED
@@ -55,6 +56,9 @@ public class Appointment {
 
     public String getProvider() { return provider; }
     public void setProvider(String provider) { this.provider = provider; }
+
+    public String getTimezone() { return timezone;}
+    public void setTimezone(String timezone) {this.timezone = timezone;}
 
     public AppointmentStatus getStatus() { return status; }
 
