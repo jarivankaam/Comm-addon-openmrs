@@ -111,16 +111,6 @@ public class AppointmentController {
 
                     a.setStatus(AppointmentStatus.CANCELLED);
 
-                    // Not necessary code, the scheduler looks at the head status.
-//                    if (a.getNotifications() != null) {
-//                        if (a.getNotifications().getReminder24h() == AppointmentStatus.SCHEDULED) {
-//                            a.getNotifications().setReminder24h(AppointmentStatus.CANCELLED);
-//                        }
-//                        if (a.getNotifications().getReminder1h() == AppointmentStatus.SCHEDULED) {
-//                            a.getNotifications().setReminder1h(AppointmentStatus.CANCELLED);
-//                        }
-//                    }
-
                     a.setExpireAt(newExpireAt);
 
                     Appointment saved = repository.save(a);
