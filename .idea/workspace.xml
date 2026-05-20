@@ -5,13 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="90eb1199-a705-447d-8d14-c0e62a6a5e52" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/model/EncryptedData.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/repository/listener/AppointmentEncryptionListener.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/service/EncryptionService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/model/Appointment.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/model/Appointment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azaricomm/api/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/controller/AppointmentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/controller/AppointmentController.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

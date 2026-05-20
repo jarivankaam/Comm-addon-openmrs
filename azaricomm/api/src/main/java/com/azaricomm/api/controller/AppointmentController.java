@@ -1,6 +1,7 @@
 package com.azaricomm.api.controller;
 
 import com.azaricomm.api.client.OpenMrsClient;
+import com.azaricomm.api.dto.AppointmentCreatedResponse;
 import com.azaricomm.api.dto.CreateAppointmentRequest;
 import com.azaricomm.api.model.Appointment;
 import com.azaricomm.api.model.AppointmentStatus;
@@ -47,7 +48,7 @@ public class AppointmentController {
     }
 
     @PostMapping
-    public ResponseEntity<Appointment> create(@Valid @RequestBody CreateAppointmentRequest request) {
+    public ResponseEntity<AppointmentCreatedResponse> create(@Valid @RequestBody CreateAppointmentRequest request) {
         Appointment appointment = new Appointment();
 
         // Map DTO to the DB entity
@@ -68,7 +69,18 @@ public class AppointmentController {
         // Create TTL-index of 14 days after scheduledTime.
         appointment.setExpireAt(request.getScheduledTime().plus(14, ChronoUnit.DAYS));
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(appointment));
+        // Save the appointment in the database.
+        Appointment savedAppointment = repository.save(appointment);
+
+        // Create a secured response (no privacy data)
+        AppointmentCreatedResponse response = new AppointmentCreatedResponse(
+                savedAppointment.getId(),
+                savedAppointment.getStatus(),
+                savedAppointment.getCreatedAt(),
+                "Appointment successfully created"
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")
