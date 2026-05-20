@@ -1,5 +1,6 @@
 package com.azaricomm.api.dto;
 
+import com.azaricomm.api.validation.ValidProvider;
 import com.azaricomm.api.validation.ValidTimeZone;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
@@ -29,6 +30,7 @@ public class CreateAppointmentRequest {
     private String location;
 
     @NotBlank(message = "Provider is required")
+    @ValidProvider
     private String provider;
 
     @NotBlank(message = "TimeZone is required")
