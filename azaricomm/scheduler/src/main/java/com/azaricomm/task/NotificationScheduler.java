@@ -78,7 +78,11 @@ public class NotificationScheduler {
         if (provider == null || provider.trim().isEmpty()) {
             provider = "swiftsend";
         }
-        NotificationMessage payload = new NotificationMessage(app.getAppointmentId(), notificationType, provider);
+        String appointmentId = app.getAppointmentId();
+        if (appointmentId == null || appointmentId.trim().isEmpty()) {
+            appointmentId = app.getId();
+        }
+        NotificationMessage payload = new NotificationMessage(appointmentId, notificationType, provider);
         if (app.getScheduledTime() != null) {
             payload.setAppointmentDateTime(app.getScheduledTime().toString());
         }

@@ -11,10 +11,10 @@ public class Appointment {
 
     @Id
     private String id;
-    private String appointmentId;  // Dit is de gekoppelde OpenMRS ID / Organization ID
+    private String appointmentId;  // OpenMRS appointment ID
     private Instant scheduledTime; // De datum/tijd van de afspraak zelf (Instant!)
     private String status;         // SCHEDULED, CANCELLED, etc.
-    private String providerId;     // twilioprovider, infobip, etc.
+    private String providerId;     // swiftsend, legacylink, asyncflow, securepost
     private String dataEncrypted;  // Het versleutelde AVG-blok met patiëntinfo (de worker pakt dit straks uit!)
     private Instant createdAt;
 
