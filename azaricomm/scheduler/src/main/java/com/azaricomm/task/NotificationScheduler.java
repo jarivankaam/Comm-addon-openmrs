@@ -34,19 +34,16 @@ public class NotificationScheduler {
     public void processAppointments() {
         Instant nu = Instant.now();
 
-        // --- STAP 2: 24 UUR VAN TEVOREN VENSTER ---
-        Instant start24h = nu.plus(23, ChronoUnit.HOURS).plus(55, ChronoUnit.MINUTES);
+        // --- STAP 2: 24 UUR VAN TEVOREN ---
         Instant end24h = nu.plus(24, ChronoUnit.HOURS);
 
-        List<Appointment> tasks24h = repository.findTasksFor24hReminder(start24h, end24h);
+        List<Appointment> tasks24h = repository.findTasksFor24hReminder(nu, end24h);
         for (Appointment app : tasks24h) {
             try {
+                NotificationMessage payload = buildPayload(app, "REMINDER_24H");
+                rabbitTemplate.convertAndSend(exchangeName, "notification.reminder", payload);
                 app.getNotifications().setReminder24h("QUEUED");
                 repository.save(app);
-
-                // Nu sturen we alleen het ID en het type mee!
-                NotificationMessage payload = new NotificationMessage(app.getId(), "24h");
-                rabbitTemplate.convertAndSend(exchangeName, "twilioprovider", payload);
 
                 log.info("24h Herinnering-ID {} succesvol naar queue gestuurd.", app.getId());
             } catch (Exception e) {
@@ -56,19 +53,16 @@ public class NotificationScheduler {
             }
         }
 
-        // --- STAP 3: 1 UUR VAN TEVOREN VENSTER ---
-        Instant start1h = nu.plus(55, ChronoUnit.MINUTES);
+        // --- STAP 3: 1 UUR VAN TEVOREN ---
         Instant end1h = nu.plus(1, ChronoUnit.HOURS);
 
-        List<Appointment> tasks1h = repository.findTasksFor1hReminder(start1h, end1h);
+        List<Appointment> tasks1h = repository.findTasksFor1hReminder(nu, end1h);
         for (Appointment app : tasks1h) {
             try {
+                NotificationMessage payload = buildPayload(app, "REMINDER_1H");
+                rabbitTemplate.convertAndSend(exchangeName, "notification.reminder", payload);
                 app.getNotifications().setReminder1h("QUEUED");
                 repository.save(app);
-
-                // Nu sturen we alleen het ID en het type mee!
-                NotificationMessage payload = new NotificationMessage(app.getId(), "1h");
-                rabbitTemplate.convertAndSend(exchangeName, "twilioprovider", payload);
 
                 log.info("1h Herinnering-ID {} succesvol naar queue gestuurd.", app.getId());
             } catch (Exception e) {
@@ -77,5 +71,17 @@ public class NotificationScheduler {
                 repository.save(app);
             }
         }
+    }
+
+    private NotificationMessage buildPayload(Appointment app, String notificationType) {
+        String provider = app.getProviderId();
+        if (provider == null || provider.trim().isEmpty()) {
+            provider = "swiftsend";
+        }
+        NotificationMessage payload = new NotificationMessage(app.getAppointmentId(), notificationType, provider);
+        if (app.getScheduledTime() != null) {
+            payload.setAppointmentDateTime(app.getScheduledTime().toString());
+        }
+        return payload;
     }
 }
