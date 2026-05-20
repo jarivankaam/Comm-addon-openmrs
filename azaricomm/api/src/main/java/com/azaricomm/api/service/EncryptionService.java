@@ -20,12 +20,13 @@ public class EncryptionService {
     private final SecretKeySpec keySpec;
     private final SecureRandom secureRandom = new SecureRandom();
 
-    // Prepares your secretkey, so java cryptografy-engine doesn't crash.
+    // Validates the configured AES-256 key material and fails fast if it is invalid.
     public EncryptionService(@Value("${crypto.secret-key}") String secretKey) {
         byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
-        byte[] finalKey = new byte[32];
-        System.arraycopy(keyBytes, 0, finalKey, 0, Math.min(keyBytes.length, 32));
-        this.keySpec = new SecretKeySpec(finalKey, "AES");
+        if (keyBytes.length != 32) {
+            throw new IllegalArgumentException("crypto.secret-key must be exactly 32 bytes when encoded as UTF-8");
+        }
+        this.keySpec = new SecretKeySpec(keyBytes, "AES");
     }
 
     public String encrypt(String strToEncrypt) {
