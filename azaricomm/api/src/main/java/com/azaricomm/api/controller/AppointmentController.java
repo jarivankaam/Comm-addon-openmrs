@@ -180,14 +180,12 @@ public class AppointmentController {
                     if (identifier == null) identifier = patientRef;
 
                     JsonNode patient = openMrsClient.getPatientByIdentifier(identifier);
-                    String name = openMrsClient.extractDisplayName(patient);
                     String phone = openMrsClient.extractPhone(patient);
                     String uuid = openMrsClient.extractUuid(patient);
 
-                    if (name == null) name = display;
                     if (uuid != null) appointment.setPatientId(uuid);
                     appointment.setPatientPhone(phone);
-                    appointment.setSubject("Afspraakherinnering voor " + name);
+                    appointment.setSubject("Afspraakherinnering");
                 }
 
                 if ("Location".equalsIgnoreCase(type) || "HealthcareService".equalsIgnoreCase(type)) {
