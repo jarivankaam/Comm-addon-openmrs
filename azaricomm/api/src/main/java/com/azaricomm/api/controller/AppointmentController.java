@@ -10,7 +10,9 @@ import com.azaricomm.api.repository.AppointmentRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
+import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +28,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 @RestController
@@ -38,16 +41,18 @@ public class AppointmentController {
     private final ObjectMapper objectMapper;
     private final OpenMrsClient openMrsClient;
     private final ApiMetrics apiMetrics;
+    private final Validator validator;
 
     @Value("${webhook.secret:}")
     private String webhookSecret;
 
     public AppointmentController(AppointmentRepository repository, ObjectMapper objectMapper,
-                                 OpenMrsClient openMrsClient, ApiMetrics apiMetrics) {
+                                 OpenMrsClient openMrsClient, ApiMetrics apiMetrics, Validator validator) {
         this.repository = repository;
         this.objectMapper = objectMapper;
         this.openMrsClient = openMrsClient;
         this.apiMetrics = apiMetrics;
+        this.validator = validator;
     }
 
     @PostMapping
@@ -145,6 +150,21 @@ public class AppointmentController {
         }
 
         Appointment appointment = mapFhirToAppointment(json);
+
+        // handmade validation for the webhook data
+        Set<ConstraintViolation<Appointment>> violations = validator.validate(appointment);
+
+        if (!violations.isEmpty()) {
+            StringBuilder sb = new StringBuilder("Webhook validation failed: ");
+            for (ConstraintViolation<Appointment> violation : violations) {
+                sb.append("[").append(violation.getPropertyPath()).append(": ").append(violation.getMessage()).append("] ");
+            }
+            log.warn(sb.toString());
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("{\"error\":\"Validation failed\", \"details\":\"" + sb.toString().trim() + "\"}");
+        }
+
         repository.save(appointment);
         apiMetrics.recordAppointmentReceived(appointment.getOrganizationId());
 
@@ -158,6 +178,9 @@ public class AppointmentController {
 
         Appointment appointment = new Appointment();
         appointment.setCreatedAt(Instant.now());
+
+        // Default fallback for timezone
+        appointment.setTimezone("Europe/Amsterdam");
 
         appointment.setPatientId(root.path("id").asText(null));
         String fhirStartText = root.path("start").asText(null);

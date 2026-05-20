@@ -26,6 +26,7 @@ public class CreateAppointmentRequest {
     @NotBlank(message = "Subject is required")
     private String subject;
 
+    @NotNull(message = "Location is required")
     @NotBlank(message = "Location is required")
     private String location;
 
@@ -33,6 +34,7 @@ public class CreateAppointmentRequest {
     @ValidProvider
     private String provider;
 
+    @NotNull(message = "Timezone is required")
     @NotBlank(message = "TimeZone is required")
     @ValidTimeZone()
     private String timezone;
