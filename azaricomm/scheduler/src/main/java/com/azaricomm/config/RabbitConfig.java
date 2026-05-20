@@ -20,16 +20,10 @@ public class RabbitConfig {
         return new DirectExchange(exchangeName, true, false);
     }
 
-    /**
-     * Hier configureren we Jackson zó dat hij ook Java 8 types
-     * zoals Instant, LocalDateTime en ZonedDateTime snapt.
-     */
     @Bean
     public MessageConverter jackson2JsonMessageConverter() {
         ObjectMapper objectMapper = new ObjectMapper();
-        // Dit is de magische regel voor java.time.Instant support:
-        objectMapper.registerModule(new JavaTimeModule());
-
+        objectMapper.registerModule(new JavaTimeModule()); // Dit lost de Instant-fout op!
         return new Jackson2JsonMessageConverter(objectMapper);
     }
 }
