@@ -1,4 +1,0 @@
-org/openmrs/module/appointmentwebhook/advice/AppointmentCreationAdvice.class
-org/openmrs/module/appointmentwebhook/api/WebhookService.class
-org/openmrs/module/appointmentwebhook/fhir/JsonWriter.class
-org/openmrs/module/appointmentwebhook/fhir/FhirAppointmentMapper.class
