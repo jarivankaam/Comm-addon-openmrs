@@ -12,14 +12,14 @@
       <option name="url" value="https://mavenrepo.openmrs.org/public" />
     </remote-repository>
     <remote-repository>
-      <option name="id" value="mks-nexus-public" />
-      <option name="name" value="Mekom Repository" />
-      <option name="url" value="https://nexus.mekomsolutions.net/repository/maven-public" />
-    </remote-repository>
-    <remote-repository>
       <option name="id" value="central" />
       <option name="name" value="Central Repository" />
       <option name="url" value="https://repo.maven.apache.org/maven2" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="mks-nexus-public" />
+      <option name="name" value="Mekom Repository" />
+      <option name="url" value="https://nexus.mekomsolutions.net/repository/maven-public" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="sonatype-central-snapshots" />

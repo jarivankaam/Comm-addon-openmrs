@@ -9,6 +9,9 @@ spring:
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/azaricomm}
 
 rabbitmq:
   exchange: azaricomm.events
