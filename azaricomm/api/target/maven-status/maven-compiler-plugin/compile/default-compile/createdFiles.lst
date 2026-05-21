@@ -1,6 +1,0 @@
-org/openmrs/module/azaricomm/api/AzariCommService.class
-org/openmrs/module/azaricomm/AzariCommActivator.class
-org/openmrs/module/azaricomm/api/impl/AzariCommServiceImpl.class
-org/openmrs/module/azaricomm/AzariCommConfig.class
-org/openmrs/module/azaricomm/Item.class
-org/openmrs/module/azaricomm/api/dao/AzariCommDao.class
