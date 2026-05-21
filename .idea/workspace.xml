@@ -7,7 +7,6 @@
     <list default="true" id="90eb1199-a705-447d-8d14-c0e62a6a5e52" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/azaricomm/api/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azaricomm/api/src/test/java/com/azaricomm/api/mapper/FhirAppointmentMapperTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/src/test/java/com/azaricomm/api/mapper/FhirAppointmentMapperTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/application.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -45,6 +44,8 @@
     "JUnit.AppointmentServiceImplTest.executor": "Run",
     "JUnit.EncryptionServiceTest.executor": "Run",
     "JUnit.FhirAppointmentMapperTest.executor": "Run",
+    "JUnit.GlobalExceptionHandlerTest.executor": "Run",
+    "JUnit.HmacWebhookAuthenticatorTest.executor": "Run",
     "JUnit.com.azaricomm.api in api.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
@@ -58,7 +59,7 @@
     "settings.editor.selected.configurable": "reference.settings.project.maven.repository.indices"
   }
 }]]></component>
-  <component name="RunManager" selected="JUnit.GlobalExceptionHandlerTest">
+  <component name="RunManager" selected="JUnit.HmacWebhookAuthenticatorTest">
     <configuration name="ApiMetricsTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="api" />
       <extension name="coverage">
@@ -69,21 +70,6 @@
       </extension>
       <option name="PACKAGE_NAME" value="com.azaricomm.api.metrics" />
       <option name="MAIN_CLASS_NAME" value="com.azaricomm.api.metrics.ApiMetricsTest" />
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="AppointmentServiceImplTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="api" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.azaricomm.api.service.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.azaricomm.api.service" />
-      <option name="MAIN_CLASS_NAME" value="com.azaricomm.api.service.AppointmentServiceImplTest" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -134,13 +120,28 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="HmacWebhookAuthenticatorTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="api" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.azaricomm.api.webhook.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.azaricomm.api.webhook" />
+      <option name="MAIN_CLASS_NAME" value="com.azaricomm.api.webhook.HmacWebhookAuthenticatorTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.HmacWebhookAuthenticatorTest" />
         <item itemvalue="JUnit.GlobalExceptionHandlerTest" />
         <item itemvalue="JUnit.ApiMetricsTest" />
         <item itemvalue="JUnit.FhirAppointmentMapperTest" />
         <item itemvalue="JUnit.EncryptionServiceTest" />
-        <item itemvalue="JUnit.AppointmentServiceImplTest" />
       </list>
     </recent_temporary>
   </component>
