@@ -95,6 +95,38 @@ public class OpenMrsClient {
         return patient.path("uuid").asText(null);
     }
 
+    public String getOrganizationName(String organizationId) {
+        String url = baseUrl + "/openmrs/ws/fhir2/R4/Organization/" + organizationId;
+        log.info("Calling OpenMRS FHIR: GET {}", url);
+        try {
+            String credentials = Base64.getEncoder()
+                    .encodeToString((username + ":" + password).getBytes());
+
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Authorization", "Basic " + credentials)
+                    .header("Accept", "application/json")
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                log.warn("OpenMRS returned {} for GET {}", response.statusCode(), url);
+                return null;
+            }
+
+            JsonNode body = objectMapper.readTree(response.body());
+            String name = body.path("name").asText(null);
+            log.info("Organization {} name: {}", organizationId, name);
+            return name;
+
+        } catch (Exception e) {
+            log.error("Failed to fetch organization {} from OpenMRS: {}", organizationId, e.getMessage());
+            return null;
+        }
+    }
+
     private void logPatientResponse(String identifier, JsonNode patient) {
         String sep = "─".repeat(60);
         StringBuilder sb = new StringBuilder("\n").append(sep).append("\n");

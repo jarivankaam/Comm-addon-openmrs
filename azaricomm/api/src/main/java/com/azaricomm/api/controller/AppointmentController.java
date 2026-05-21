@@ -1,31 +1,21 @@
 package com.azaricomm.api.controller;
 
-import com.azaricomm.api.client.OpenMrsClient;
 import com.azaricomm.api.dto.AppointmentCreatedResponse;
 import com.azaricomm.api.dto.CreateAppointmentRequest;
-import com.azaricomm.api.metrics.ApiMetrics;
 import com.azaricomm.api.model.Appointment;
-import com.azaricomm.api.model.AppointmentStatus;
-import com.azaricomm.api.repository.AppointmentRepository;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.azaricomm.api.service.AppointmentService;
+import com.azaricomm.api.webhook.WebhookAuthenticator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.zip.GZIPInputStream;
 
 @RestController
@@ -34,91 +24,29 @@ public class AppointmentController {
 
     private static final Logger log = LoggerFactory.getLogger(AppointmentController.class);
 
-    private final AppointmentRepository repository;
-    private final ObjectMapper objectMapper;
-    private final OpenMrsClient openMrsClient;
-    private final ApiMetrics apiMetrics;
+    private final AppointmentService appointmentService;
+    private final WebhookAuthenticator webhookAuthenticator;
 
-    @Value("${webhook.secret:}")
-    private String webhookSecret;
-
-    public AppointmentController(AppointmentRepository repository, ObjectMapper objectMapper,
-                                 OpenMrsClient openMrsClient, ApiMetrics apiMetrics) {
-        this.repository = repository;
-        this.objectMapper = objectMapper;
-        this.openMrsClient = openMrsClient;
-        this.apiMetrics = apiMetrics;
+    public AppointmentController(AppointmentService appointmentService, WebhookAuthenticator webhookAuthenticator) {
+        this.appointmentService = appointmentService;
+        this.webhookAuthenticator = webhookAuthenticator;
     }
 
     @PostMapping
     public ResponseEntity<AppointmentCreatedResponse> create(@Valid @RequestBody CreateAppointmentRequest request) {
-        Appointment appointment = new Appointment();
-
-        appointment.setOrganizationId(request.getOrganizationId());
-        appointment.setScheduledTime(request.getScheduledTime());
-        appointment.setPatientId(request.getPatientId());
-        appointment.setPatientPhone(request.getPatientPhone());
-        appointment.setSubject(request.getSubject());
-        appointment.setLocation(request.getLocation());
-        appointment.setInstructions(request.getInstructions());
-        appointment.setProvider(request.getProvider());
-        appointment.setTimezone(request.getTimezone());
-
-        appointment.setStatus(AppointmentStatus.SCHEDULED);
-        appointment.setCreatedAt(Instant.now());
-        appointment.setExpireAt(request.getScheduledTime().plus(14, ChronoUnit.DAYS));
-
-        // Save the appointment in the database.
-        Appointment savedAppointment = repository.save(appointment);
-
-        // Create a secured response (no privacy data)
-        AppointmentCreatedResponse response = new AppointmentCreatedResponse(
-                savedAppointment.getId(),
-                savedAppointment.getStatus(),
-                savedAppointment.getCreatedAt(),
-                "Appointment successfully created"
-        );
-        apiMetrics.recordAppointmentReceived(request.getOrganizationId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(appointmentService.create(request));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Appointment> get(@PathVariable String id) {
-        return repository.findById(id)
+        return appointmentService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}/cancel")
     public ResponseEntity<Appointment> cancel(@PathVariable String id) {
-        return repository.findById(id)
-                .map(a -> {
-                    if (a.getStatus() == AppointmentStatus.CANCELLED) {
-                        throw new ResponseStatusException(
-                                HttpStatus.BAD_REQUEST,
-                                "This appointment is already cancelled."
-                        );
-                    }
-
-                    Instant newExpireAt = Instant.now().plus(14, ChronoUnit.DAYS);
-
-                    if (a.getExpireAt() != null && newExpireAt.isAfter(a.getExpireAt())) {
-                        throw new ResponseStatusException(
-                                HttpStatus.BAD_REQUEST,
-                                "Cannot cancel appointment: the new retention period would exceed the original privacy lifecycle."
-                        );
-                    }
-
-                    a.setStatus(AppointmentStatus.CANCELLED);
-
-                    a.setExpireAt(newExpireAt);
-
-                    Appointment saved = repository.save(a);
-                    apiMetrics.recordAppointmentCancelled(a.getOrganizationId());
-
-                    return ResponseEntity.ok(saved);
-                })
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(appointmentService.cancel(id));
     }
 
     @PostMapping("/webhook/openmrs")
@@ -127,162 +55,54 @@ public class AppointmentController {
             @RequestHeader(value = "X-Webhook-Signature", required = false) String signature,
             @RequestHeader(value = "Content-Encoding", required = false) String contentEncoding) throws IOException {
 
-        byte[] rawBytes = request.getInputStream().readAllBytes();
+        log.info("Received OpenMRS webhook from {} (encoding: {}, signature: {})",
+                request.getRemoteAddr(), contentEncoding, signature);
 
+        byte[] rawBytes = request.getInputStream().readAllBytes();
         byte[] bodyBytes = (contentEncoding != null && contentEncoding.toLowerCase().contains("gzip"))
                 ? gunzip(rawBytes)
                 : rawBytes;
-
         String json = new String(bodyBytes, StandardCharsets.UTF_8);
 
-        if (!webhookSecret.isEmpty()) {
-            String expected = "sha256=" + hmacSha256(json, webhookSecret);
-            if (!expected.equals(signature)) {
-                log.warn("Invalid HMAC signature on OpenMRS webhook");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("{\"error\":\"Invalid signature\"}");
-            }
+        if (!webhookAuthenticator.isValid(json, signature)) {
+            log.warn("Invalid HMAC signature on OpenMRS webhook");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"error\":\"Invalid signature\"}");
         }
 
-        Appointment appointment = mapFhirToAppointment(json);
-        repository.save(appointment);
-        apiMetrics.recordAppointmentReceived(appointment.getOrganizationId());
-
-        logWebhookPayload(request.getRemoteAddr(), contentEncoding, rawBytes.length, bodyBytes.length, json, appointment);
+        appointmentService.processWebhook(json, request.getRemoteAddr(), contentEncoding, rawBytes.length, bodyBytes.length);
 
         return ResponseEntity.ok("{\"status\":\"received\"}");
     }
 
-    private Appointment mapFhirToAppointment(String json) throws IOException {
-        JsonNode root = objectMapper.readTree(json);
+    @PostMapping("/webhook/debug")
+    public ResponseEntity<String> debugWebhook(
+            HttpServletRequest request,
+            @RequestHeader(value = "Content-Encoding", required = false) String contentEncoding) throws IOException {
 
-        Appointment appointment = new Appointment();
-        appointment.setCreatedAt(Instant.now());
+        byte[] rawBytes = request.getInputStream().readAllBytes();
+        byte[] bodyBytes = (contentEncoding != null && contentEncoding.toLowerCase().contains("gzip"))
+                ? gunzip(rawBytes)
+                : rawBytes;
+        String body = new String(bodyBytes, StandardCharsets.UTF_8);
 
-        appointment.setPatientId(root.path("id").asText(null));
-        String fhirStartText = root.path("start").asText(null);
-        if (fhirStartText != null && !fhirStartText.isBlank()) {
-            try {
-                java.time.OffsetDateTime odt = java.time.OffsetDateTime.parse(fhirStartText);
-                Instant parsedTime = odt.toInstant();
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== HEADERS ===\n");
+        java.util.Collections.list(request.getHeaderNames())
+                .forEach(h -> sb.append(h).append(": ").append(request.getHeader(h)).append("\n"));
+        sb.append("\n=== BODY (").append(bodyBytes.length).append(" bytes) ===\n");
+        sb.append(body);
 
-                appointment.setScheduledTime(parsedTime);
-                appointment.setExpireAt(parsedTime.plus(14, ChronoUnit.DAYS));
-            } catch (Exception e) {
-                log.error("Failed to parse OpenMRS scheduledTime string: " + fhirStartText, e);
-                Instant fallback = Instant.now();
-                appointment.setScheduledTime(fallback);
-                appointment.setExpireAt(fallback.plus(14, ChronoUnit.DAYS));
-            }
-        }
-        appointment.setStatus(mapFhirStatus(root.path("status").asText("booked")));
-
-        JsonNode participants = root.path("participant");
-        if (participants.isArray()) {
-            for (JsonNode participant : participants) {
-                JsonNode actor = participant.path("actor");
-                String type = actor.path("type").asText("");
-                String display = actor.path("display").asText("");
-                String reference = actor.path("reference").asText("");
-
-                String s = reference.contains("/")
-                        ? reference.substring(reference.lastIndexOf('/') + 1)
-                        : reference;
-                if ("Patient".equalsIgnoreCase(type)) {
-                    String patientRef = s;
-                    appointment.setPatientId(patientRef);
-
-                    String identifier = actor.path("identifier").path("value").asText(null);
-                    if (identifier == null) identifier = patientRef;
-
-                    JsonNode patient = openMrsClient.getPatientByIdentifier(identifier);
-                    String phone = openMrsClient.extractPhone(patient);
-                    String uuid = openMrsClient.extractUuid(patient);
-
-                    if (uuid != null) appointment.setPatientId(uuid);
-                    appointment.setPatientPhone(phone);
-                    appointment.setSubject("Afspraakherinnering");
-                }
-
-                if ("Location".equalsIgnoreCase(type) || "HealthcareService".equalsIgnoreCase(type)) {
-                    appointment.setLocation(display);
-                }
-
-                if ("Organization".equalsIgnoreCase(type) && !reference.isBlank()) {
-                    String orgId = s;
-                    appointment.setOrganizationId(orgId);
-                }
-            }
-        }
-
-        return appointment;
-    }
-
-    private static AppointmentStatus mapFhirStatus(String fhirStatus) {
-        return switch (fhirStatus.toLowerCase()) {
-            case "booked", "pending" -> AppointmentStatus.SCHEDULED;
-            case "cancelled", "noshow" -> AppointmentStatus.CANCELLED;
-            case "fulfilled" -> AppointmentStatus.SENT;
-            default -> AppointmentStatus.SCHEDULED;
-        };
+        log.info("\n{}", sb);
+        return ResponseEntity.ok(sb.toString());
     }
 
     private static byte[] gunzip(byte[] compressed) throws IOException {
-        try (GZIPInputStream gzis = new GZIPInputStream(
-                new java.io.ByteArrayInputStream(compressed));
+        try (GZIPInputStream gzis = new GZIPInputStream(new java.io.ByteArrayInputStream(compressed));
              ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             byte[] buf = new byte[4096];
             int len;
-            while ((len = gzis.read(buf)) != -1) {
-                baos.write(buf, 0, len);
-            }
+            while ((len = gzis.read(buf)) != -1) baos.write(buf, 0, len);
             return baos.toByteArray();
-        }
-    }
-
-    private void logWebhookPayload(String remote, String encoding, int rawLen, int bodyLen,
-                                   String json, Appointment appointment) {
-        String sep = "─".repeat(60);
-        StringBuilder sb = new StringBuilder("\n").append("═".repeat(60)).append("\n");
-        sb.append("  INCOMING webhook from ").append(remote).append("\n");
-        sb.append(sep).append("\n");
-
-        if (encoding != null && encoding.toLowerCase().contains("gzip")) {
-            sb.append("  [GZIP] decompressed ").append(rawLen).append(" → ").append(bodyLen).append(" bytes\n");
-        } else {
-            sb.append("  [BODY] ").append(bodyLen).append(" bytes (uncompressed)\n");
-        }
-
-        sb.append("\n  ┌─ Appointment Summary ─────────────────────────\n");
-        sb.append("  │ Patient ID: ").append(appointment.getPatientId()).append("\n");
-        sb.append("  │ Status:     ").append(appointment.getStatus()).append("\n");
-        sb.append("  │ Start:      ").append(appointment.getScheduledTime()).append("\n");
-        sb.append("  │ Location:   ").append(appointment.getLocation()).append("\n");
-        sb.append("  │ Subject:    ").append(appointment.getSubject()).append("\n");
-        sb.append("  └").append("─".repeat(48)).append("\n");
-
-        try {
-            Object prettyJson = objectMapper.readValue(json, Object.class);
-            sb.append("\n  Full FHIR R4 JSON:\n");
-            sb.append(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(prettyJson));
-        } catch (Exception e) {
-            sb.append("\n  Raw body:\n").append(json);
-        }
-
-        sb.append("\n").append("═".repeat(60));
-        log.info(sb.toString());
-    }
-
-    private static String hmacSha256(String data, String secret) {
-        try {
-            Mac mac = Mac.getInstance("HmacSHA256");
-            mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
-            byte[] hash = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-            StringBuilder hex = new StringBuilder(hash.length * 2);
-            for (byte b : hash) hex.append(String.format("%02x", b));
-            return hex.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("HMAC error", e);
         }
     }
 }
