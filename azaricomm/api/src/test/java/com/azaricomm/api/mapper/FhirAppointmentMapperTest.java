@@ -30,7 +30,6 @@ class FhirAppointmentMapperTest {
 
     @Test
     void map_WithValidJson_ShouldMapCorrectly() throws IOException {
-        // Arrange
         String json = """
         {
           "id": "fhir-app-123",
@@ -51,10 +50,8 @@ class FhirAppointmentMapperTest {
         }
         """;
 
-        // Act
         Appointment appointment = mapper.map(json);
 
-        // Assert
         assertNotNull(appointment);
         assertEquals("fhir-app-123", appointment.getPatientId());
         assertEquals(AppointmentStatus.SCHEDULED, appointment.getStatus());
@@ -65,10 +62,8 @@ class FhirAppointmentMapperTest {
 
     @Test
     void map_WithInvalidDateString_ShouldThrowIllegalArgumentException() {
-        // Arrange: Een json met een onleesbare datum string
         String json = "{\"start\": \"ongeldige-datum\"}";
 
-        // Act & Assert: We verwachten nu dat de applicatie weigert door te gaan en een error gooit
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             mapper.map(json);
         });
@@ -78,10 +73,8 @@ class FhirAppointmentMapperTest {
 
     @Test
     void map_WithMissingDate_ShouldThrowIllegalArgumentException() {
-        // Arrange: Een json waar de startdatum volledig in ontbreekt
         String json = "{\"id\": \"app-123\"}";
 
-        // Act & Assert: Ook hier eisen we een harde fail
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             mapper.map(json);
         });

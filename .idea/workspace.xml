@@ -5,13 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="90eb1199-a705-447d-8d14-c0e62a6a5e52" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/azaricomm/api/src/test/java/com/azaricomm/api/mapper/FhirAppointmentMapperTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/azaricomm/api/src/test/java/com/azaricomm/api/metrics/ApiMetricsTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/azaricomm/api/src/test/java/com/azaricomm/api/utils/GlobalExceptionHandlerTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/azaricomm/api/src/test/java/com/azaricomm/api/webhook/HmacWebhookAuthenticatorTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/mapper/FhirAppointmentMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/mapper/FhirAppointmentMapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/azaricomm/api/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/src/test/java/com/azaricomm/api/mapper/FhirAppointmentMapperTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/src/test/java/com/azaricomm/api/mapper/FhirAppointmentMapperTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/application.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -45,6 +41,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "JUnit.ApiMetricsTest.executor": "Run",
     "JUnit.AppointmentServiceImplTest.executor": "Run",
     "JUnit.EncryptionServiceTest.executor": "Run",
     "JUnit.FhirAppointmentMapperTest.executor": "Run",
@@ -61,7 +58,22 @@
     "settings.editor.selected.configurable": "reference.settings.project.maven.repository.indices"
   }
 }]]></component>
-  <component name="RunManager" selected="JUnit.FhirAppointmentMapperTest">
+  <component name="RunManager" selected="JUnit.ApiMetricsTest">
+    <configuration name="ApiMetricsTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="api" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.azaricomm.api.metrics.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.azaricomm.api.metrics" />
+      <option name="MAIN_CLASS_NAME" value="com.azaricomm.api.metrics.ApiMetricsTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="AppointmentServiceImplTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="api" />
       <extension name="coverage">
@@ -121,30 +133,13 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Python tests in test" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
-      <module name="api" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/azaricomm/api/src/test" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="DEBUG_JUST_MY_CODE" value="false" />
-      <option name="RUN_TOOL" value="" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/azaricomm/api/src/test&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.ApiMetricsTest" />
         <item itemvalue="JUnit.FhirAppointmentMapperTest" />
         <item itemvalue="JUnit.EncryptionServiceTest" />
         <item itemvalue="JUnit.AppointmentServiceImplTest" />
         <item itemvalue="JUnit.com.azaricomm.api in api" />
-        <item itemvalue="Python tests.Python tests in test" />
       </list>
     </recent_temporary>
   </component>
