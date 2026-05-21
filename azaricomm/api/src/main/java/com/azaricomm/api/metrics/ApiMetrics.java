@@ -15,7 +15,7 @@ public class ApiMetrics {
 
     public void recordAppointmentReceived(String organizationId) {
         Counter.builder("appointments.received")
-                .tag("organization", organizationId != null ? organizationId : "unknown")
+                .tag("organization", organizationId != null && !organizationId.isBlank() ? organizationId : "unknown")
                 .description("Appointments received from OpenMRS")
                 .register(registry)
                 .increment();
@@ -23,7 +23,7 @@ public class ApiMetrics {
 
     public void recordAppointmentCancelled(String organizationId) {
         Counter.builder("appointments.cancelled")
-                .tag("organization", organizationId != null ? organizationId : "unknown")
+                .tag("organization", organizationId != null && !organizationId.isBlank() ? organizationId : "unknown")
                 .description("Appointments cancelled")
                 .register(registry)
                 .increment();
