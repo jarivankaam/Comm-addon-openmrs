@@ -3,6 +3,7 @@ package com.azaricomm.consumer;
 import com.azaricomm.model.DeliveryResult;
 import com.azaricomm.model.NotificationMessage;
 import com.azaricomm.provider.ProviderRouter;
+import com.azaricomm.service.AppointmentEnrichmentService;
 import com.azaricomm.service.NotificationValidationService;
 import com.azaricomm.service.NotificationRetryService;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -22,13 +23,16 @@ public class NotificationConsumer {
     private final ProviderRouter providerRouter;
     private final NotificationValidationService validationService;
     private final NotificationRetryService retryService;
+    private final AppointmentEnrichmentService enrichmentService;
 
     public NotificationConsumer(ProviderRouter providerRouter,
                                NotificationValidationService validationService,
-                               NotificationRetryService retryService) {
+                               NotificationRetryService retryService,
+                               AppointmentEnrichmentService enrichmentService) {
         this.providerRouter = providerRouter;
         this.validationService = validationService;
         this.retryService = retryService;
+        this.enrichmentService = enrichmentService;
     }
 
     @RabbitListener(queues = "${rabbitmq.queue:azaricomm.notifications}")
@@ -39,6 +43,12 @@ public class NotificationConsumer {
         try {
             message = objectMapper.readValue(messageBody, NotificationMessage.class);
             log.info("Parsed notification: {}", message);
+
+            // Enrich message with full appointment data from MongoDB
+            if (!enrichmentService.enrich(message)) {
+                log.warn("Could not enrich notification, discarding message for appointment: {}", message.getAppointmentId());
+                return;
+            }
 
             // Validate message before routing
             if (!validationService.validateMessage(message)) {

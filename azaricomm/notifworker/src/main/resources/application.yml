@@ -18,6 +18,9 @@ rabbitmq:
   queue: azaricomm.notifications
   routing-key: "notification.#"
 
+crypto:
+  secret-key: ${CRYPTO_SECRET_KEY}
+
 logging:
   level:
     com.azaricomm: DEBUG

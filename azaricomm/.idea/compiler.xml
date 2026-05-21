@@ -7,11 +7,11 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="azaricomm-api" />
-        <module name="communication-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="azaricomm-omod" target="1.8" />
+      <module name="communication-service" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
