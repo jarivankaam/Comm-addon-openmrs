@@ -77,7 +77,7 @@ class ApiMetricsTest {
 
         apiMetrics.recordAppointmentReceived("");
         apiMetrics.recordAppointmentReceived("   ");
-        
+
         Counter counter = meterRegistry.find("appointments.received").tag("organization", "unknown").counter();
 
         assertNotNull(counter, "Lege of blanke organisatie ID's moeten worden omgezet naar 'unknown'");

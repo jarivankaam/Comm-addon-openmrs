@@ -58,7 +58,7 @@
     "settings.editor.selected.configurable": "reference.settings.project.maven.repository.indices"
   }
 }]]></component>
-  <component name="RunManager" selected="JUnit.ApiMetricsTest">
+  <component name="RunManager" selected="JUnit.GlobalExceptionHandlerTest">
     <configuration name="ApiMetricsTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="api" />
       <extension name="coverage">
@@ -119,27 +119,28 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="com.azaricomm.api in api" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="GlobalExceptionHandlerTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="api" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.azaricomm.api.*" />
+          <option name="PATTERN" value="com.azaricomm.api.utils.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="com.azaricomm.api" />
-      <option name="TEST_OBJECT" value="package" />
+      <option name="PACKAGE_NAME" value="com.azaricomm.api.utils" />
+      <option name="MAIN_CLASS_NAME" value="com.azaricomm.api.utils.GlobalExceptionHandlerTest" />
+      <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.GlobalExceptionHandlerTest" />
         <item itemvalue="JUnit.ApiMetricsTest" />
         <item itemvalue="JUnit.FhirAppointmentMapperTest" />
         <item itemvalue="JUnit.EncryptionServiceTest" />
         <item itemvalue="JUnit.AppointmentServiceImplTest" />
-        <item itemvalue="JUnit.com.azaricomm.api in api" />
       </list>
     </recent_temporary>
   </component>
