@@ -40,6 +40,10 @@ public class FhirAppointmentMapper {
         mapParticipants(appointment, root.path("participant"));
         mapExtensions(appointment, root.path("extension"));
 
+        if (appointment.getOrganizationId() == null || appointment.getOrganizationId().isBlank()) {
+            appointment.setOrganizationId("1");
+        }
+
         return appointment;
     }
 
@@ -82,7 +86,8 @@ public class FhirAppointmentMapper {
             } else if ("Location".equalsIgnoreCase(type) || "HealthcareService".equalsIgnoreCase(type)) {
                 appointment.setLocation(display);
             } else if ("Organization".equalsIgnoreCase(type) && !reference.isBlank()) {
-                appointment.setOrganizationId(id);
+                String orgName = display.isBlank() ? openMrsClient.getOrganizationName(id) : display;
+                appointment.setOrganizationId(orgName);
             }
         }
     }
@@ -104,11 +109,14 @@ public class FhirAppointmentMapper {
     private void mapExtensions(Appointment appointment, JsonNode extensions) {
         if (!extensions.isArray()) return;
         for (JsonNode ext : extensions) {
-            if ("http://openmrs.org/fhir/extension/timezone".equals(ext.path("url").asText(""))) {
-                String tz = ext.path("valueString").asText(null);
-                if (tz != null && !tz.isBlank()) {
-                    appointment.setTimezone(tz);
-                }
+            String url = ext.path("url").asText("");
+            String value = ext.path("valueString").asText(null);
+            if (value == null || value.isBlank()) continue;
+
+            if ("http://openmrs.org/fhir/extension/timezone".equals(url)) {
+                appointment.setTimezone(value);
+            } else if ("http://openmrs.org/fhir/extension/messageProvider".equals(url)) {
+                appointment.setProvider(value.toLowerCase());
             }
         }
     }

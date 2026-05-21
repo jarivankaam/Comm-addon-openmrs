@@ -96,14 +96,24 @@ public class AppointmentServiceImpl implements AppointmentService {
     public void processWebhook(String json, String remoteAddr, String encoding, int rawLen, int bodyLen) throws IOException {
         Appointment appointment = fhirMapper.map(json);
 
-        Set<ConstraintViolation<Appointment>> violations = validator.validate(appointment);
+        CreateAppointmentRequest req = new CreateAppointmentRequest();
+        req.setOrganizationId(appointment.getOrganizationId());
+        req.setScheduledTime(appointment.getScheduledTime());
+        req.setPatientId(appointment.getPatientId());
+        req.setPatientPhone(appointment.getPatientPhone());
+        req.setSubject(appointment.getSubject());
+        req.setLocation(appointment.getLocation());
+        req.setProvider(appointment.getProvider());
+        req.setTimezone(appointment.getTimezone());
+        req.setInstructions(appointment.getInstructions());
+
+        Set<ConstraintViolation<CreateAppointmentRequest>> violations = validator.validate(req);
         if (!violations.isEmpty()) {
-            StringBuilder sb = new StringBuilder("Webhook validation failed: ");
-            for (ConstraintViolation<Appointment> v : violations) {
-                sb.append("[").append(v.getPropertyPath()).append(": ").append(v.getMessage()).append("] ");
-            }
-            log.warn(sb.toString());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, sb.toString().trim());
+            String message = violations.stream()
+                    .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                    .reduce((a, b) -> a + ", " + b).orElse("Validation failed");
+            log.warn("Webhook validation failed: {}", message);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
         }
 
         repository.save(appointment);

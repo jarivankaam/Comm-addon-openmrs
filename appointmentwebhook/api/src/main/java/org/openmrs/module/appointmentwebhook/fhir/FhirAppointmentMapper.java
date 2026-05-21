@@ -141,6 +141,7 @@ public class FhirAppointmentMapper {
 		writePatientParticipant(j, src.getPatient(), serverBase);
 		writeProviderParticipants(j, src.getProviders(), serverBase);
 		writeLocationParticipant(j, src.getLocation(), serverBase);
+		writeOrganizationParticipant(j, src.getLocation(), serverBase);
 		j.arrayEnd();
 	}
 	
@@ -212,6 +213,26 @@ public class FhirAppointmentMapper {
 		j.key("reference").value(ref(serverBase, "Location", location.getUuid()));
 		j.key("type").value("Location");
 		j.key("display").value(location.getName());
+		j.objectEnd();
+		j.key("required").value("required");
+		j.key("status").value("accepted");
+		j.objectEnd();
+	}
+	
+	private static void writeOrganizationParticipant(JsonWriter j, Location location, String serverBase) {
+		if (location == null) {
+			return;
+		}
+		Location org = location;
+		while (org.getParentLocation() != null) {
+			org = org.getParentLocation();
+		}
+		j.objectStart();
+		writeParticipantType(j, "PART", "participant");
+		j.key("actor").objectStart();
+		j.key("reference").value(ref(serverBase, "Organization", org.getUuid()));
+		j.key("type").value("Organization");
+		j.key("display").value(org.getName());
 		j.objectEnd();
 		j.key("required").value("required");
 		j.key("status").value("accepted");

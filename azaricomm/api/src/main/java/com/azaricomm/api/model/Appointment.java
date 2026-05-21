@@ -15,6 +15,7 @@ public class Appointment {
     private String id;
 
     private String organizationId;
+    @Transient private String organizationName;
     private Instant scheduledTime;
 
     private String dataEncrypted;
@@ -43,6 +44,9 @@ public class Appointment {
 
     public String getOrganizationId() { return organizationId; }
     public void setOrganizationId(String organizationId) { this.organizationId = organizationId; }
+
+    public String getOrganizationName() { return organizationName; }
+    public void setOrganizationName(String organizationName) { this.organizationName = organizationName; }
 
     public String getDataEncrypted() { return dataEncrypted; }
     public void setDataEncrypted(String dataEncrypted) { this.dataEncrypted = dataEncrypted; }
