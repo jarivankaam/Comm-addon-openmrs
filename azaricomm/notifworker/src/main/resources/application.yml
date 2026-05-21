@@ -21,6 +21,20 @@ rabbitmq:
 crypto:
   secret-key: ${CRYPTO_SECRET_KEY}
 
+providers:
+  swiftsend:
+    url: ${PROVIDER_SWIFTSEND_URL}
+    api-key: ${PROVIDER_SWIFTSEND_API_KEY:}
+  legacylink:
+    url: ${PROVIDER_LEGACYLINK_URL}
+    api-key: ${PROVIDER_LEGACYLINK_API_KEY:}
+  securepost:
+    url: ${PROVIDER_SECUREPOST_URL}
+    api-key: ${PROVIDER_SECUREPOST_API_KEY:}
+  asyncflow:
+    url: ${PROVIDER_ASYNCFLOW_URL}
+    api-key: ${PROVIDER_ASYNCFLOW_API_KEY:}
+
 logging:
   level:
     com.azaricomm: DEBUG

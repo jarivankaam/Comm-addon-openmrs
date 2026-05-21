@@ -2,20 +2,36 @@ package com.azaricomm.provider;
 
 import com.azaricomm.model.DeliveryResult;
 import com.azaricomm.model.NotificationMessage;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.UUID;
-
-/**
- * Adapter for the SwiftSend messaging provider.
- * Simulates a fast synchronous REST API.
- */
 @Component
 public class SwiftSendProvider implements MessagingProvider {
 
     private static final Logger log = LoggerFactory.getLogger(SwiftSendProvider.class);
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    private final RestTemplate restTemplate;
+    private final String url;
+    private final String apiKey;
+
+    public SwiftSendProvider(RestTemplate restTemplate,
+                             @Value("${providers.swiftsend.url}") String url,
+                             @Value("${providers.swiftsend.api-key:}") String apiKey) {
+        this.restTemplate = restTemplate;
+        this.url = url;
+        this.apiKey = apiKey;
+    }
 
     @Override
     public String getName() {
@@ -24,18 +40,44 @@ public class SwiftSendProvider implements MessagingProvider {
 
     @Override
     public DeliveryResult send(NotificationMessage message) {
-        log.info("[SwiftSend] Sending to {} | subject: {} | body: {}",
-                message.getPatientPhone(), message.getSubject(), message.getBody());
-
-        // Simulate API call
+        log.info("[SwiftSend] Sending to {} | subject: {}", message.getPatientPhone(), message.getSubject());
         try {
-            Thread.sleep(100); // fast provider
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+            HttpHeaders headers = buildHeaders();
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                    url, new HttpEntity<>(message, headers), String.class);
 
-        String messageId = "SS-" + UUID.randomUUID().toString().substring(0, 8);
-        log.info("[SwiftSend] Delivered successfully, messageId={}", messageId);
-        return DeliveryResult.success(getName(), messageId);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                String messageId = extractMessageId(response.getBody());
+                log.info("[SwiftSend] Delivered successfully, messageId={}", messageId);
+                return DeliveryResult.success(getName(), messageId);
+            }
+
+            log.error("[SwiftSend] Unexpected status {}", response.getStatusCode());
+            return DeliveryResult.failure(getName(), "Unexpected status: " + response.getStatusCode());
+
+        } catch (HttpStatusCodeException e) {
+            log.error("[SwiftSend] HTTP {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            return DeliveryResult.failure(getName(), "HTTP " + e.getStatusCode() + ": " + e.getResponseBodyAsString());
+        } catch (Exception e) {
+            log.error("[SwiftSend] Request failed: {}", e.getMessage(), e);
+            return DeliveryResult.failure(getName(), "Request failed: " + e.getMessage());
+        }
+    }
+
+    private HttpHeaders buildHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        if (apiKey != null && !apiKey.isBlank()) {
+            headers.set("X-Api-Key", apiKey);
+        }
+        return headers;
+    }
+
+    private String extractMessageId(String body) {
+        try {
+            JsonNode node = objectMapper.readTree(body);
+            if (node.has("messageId")) return node.get("messageId").asText();
+        } catch (Exception ignored) {}
+        return "SS-unknown";
     }
 }

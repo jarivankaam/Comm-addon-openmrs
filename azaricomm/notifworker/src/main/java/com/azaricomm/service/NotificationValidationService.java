@@ -92,10 +92,10 @@ public class NotificationValidationService {
 
         if ("REMINDER_24H".equalsIgnoreCase(notificationType)) {
             String status = appointment.getNotifications().getReminder24h();
-            return status != null && !status.equalsIgnoreCase("SCHEDULED");
+            return status != null && status.equalsIgnoreCase("SENT");
         } else if ("REMINDER_1H".equalsIgnoreCase(notificationType)) {
             String status = appointment.getNotifications().getReminder1h();
-            return status != null && !status.equalsIgnoreCase("SCHEDULED");
+            return status != null && status.equalsIgnoreCase("SENT");
         }
 
         return false;
