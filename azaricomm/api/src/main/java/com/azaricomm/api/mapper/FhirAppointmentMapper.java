@@ -40,10 +40,6 @@ public class FhirAppointmentMapper {
         mapParticipants(appointment, root.path("participant"));
         mapExtensions(appointment, root.path("extension"));
 
-        if (appointment.getOrganizationId() == null || appointment.getOrganizationId().isBlank()) {
-            appointment.setOrganizationId("1");
-        }
-
         return appointment;
     }
 
