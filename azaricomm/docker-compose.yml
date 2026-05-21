@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   rabbitmq:
     image: rabbitmq:3-management
@@ -38,6 +37,7 @@ services:
       - "8080:8080"
     environment:
       MONGODB_URI: mongodb://mongodb:27017/azaricomm
+      CRYPTO_SECRET_KEY: ${CRYPTO_SECRET_KEY:-DitIsMijnSuperGeheimeSleutel123!}
       WEBHOOK_SECRET: ${WEBHOOK_SECRET:-}
       OPENMRS_BASE_URL: ${OPENMRS_BASE_URL:-http://localhost:8081}
       OPENMRS_USERNAME: ${OPENMRS_USERNAME:-admin}
@@ -58,31 +58,17 @@ services:
       mongodb:
         condition: service_healthy
 
-  communication-service:
-    build:
-      context: ./communication-service
-    container_name: azaricomm-communication-service
-    ports:
-      - "8081:8081"
-    environment:
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USERNAME: guest
-      RABBITMQ_PASSWORD: guest
-      OTEL_SERVICE_NAME: azaricomm-communication-service
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
-      OTEL_METRICS_EXPORTER: otlp
-      OTEL_TRACES_EXPORTER: otlp
-      OTEL_LOGS_EXPORTER: none
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-
   scheduler:
     build:
       context: ./scheduler
     container_name: azaricomm-scheduler
     environment:
+      MONGODB_URI: mongodb://mongodb:27017/azaricomm
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: guest
+      RABBITMQ_PASSWORD: guest
+      RABBITMQ_EXCHANGE: azaricomm.events
       OTEL_SERVICE_NAME: azaricomm-scheduler
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       OTEL_METRICS_EXPORTER: otlp
@@ -92,13 +78,27 @@ services:
       rabbitmq:
         condition: service_healthy
       mongodb:
-        condition: service_started
+        condition: service_healthy
 
   notifworker:
     build:
       context: ./notifworker
     container_name: azaricomm-notifworker
     environment:
+      MONGODB_URI: mongodb://mongodb:27017/azaricomm
+      CRYPTO_SECRET_KEY: ${CRYPTO_SECRET_KEY:-DitIsMijnSuperGeheimeSleutel123!}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: guest
+      RABBITMQ_PASSWORD: guest
+      PROVIDER_SWIFTSEND_URL: ${PROVIDER_SWIFTSEND_URL:-https://httpbin.org/post}
+      PROVIDER_SWIFTSEND_API_KEY: ${PROVIDER_SWIFTSEND_API_KEY:-}
+      PROVIDER_LEGACYLINK_URL: ${PROVIDER_LEGACYLINK_URL:-https://httpbin.org/post}
+      PROVIDER_LEGACYLINK_API_KEY: ${PROVIDER_LEGACYLINK_API_KEY:-}
+      PROVIDER_SECUREPOST_URL: ${PROVIDER_SECUREPOST_URL:-https://httpbin.org/post}
+      PROVIDER_SECUREPOST_API_KEY: ${PROVIDER_SECUREPOST_API_KEY:-}
+      PROVIDER_ASYNCFLOW_URL: ${PROVIDER_ASYNCFLOW_URL:-https://httpbin.org/post}
+      PROVIDER_ASYNCFLOW_API_KEY: ${PROVIDER_ASYNCFLOW_API_KEY:-}
       OTEL_SERVICE_NAME: azaricomm-notifworker
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       OTEL_METRICS_EXPORTER: otlp
@@ -108,7 +108,7 @@ services:
       rabbitmq:
         condition: service_healthy
       mongodb:
-        condition: service_started
+        condition: service_healthy
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest

@@ -7,6 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -21,13 +25,16 @@ public class NotificationScheduler {
 
     private final AppointmentRepository repository;
     private final RabbitTemplate rabbitTemplate;
+    private final MongoTemplate mongoTemplate;
 
     @Value("${app.rabbitmq.exchange}")
     private String exchangeName;
 
-    public NotificationScheduler(AppointmentRepository repository, RabbitTemplate rabbitTemplate) {
+    public NotificationScheduler(AppointmentRepository repository, RabbitTemplate rabbitTemplate,
+                                 MongoTemplate mongoTemplate) {
         this.repository = repository;
         this.rabbitTemplate = rabbitTemplate;
+        this.mongoTemplate = mongoTemplate;
     }
 
     @Scheduled(fixedDelay = 60000)
@@ -42,14 +49,11 @@ public class NotificationScheduler {
             try {
                 NotificationMessage payload = buildPayload(app, "REMINDER_24H");
                 rabbitTemplate.convertAndSend(exchangeName, "notification.reminder", payload);
-                app.getNotifications().setReminder24h("QUEUED");
-                repository.save(app);
-
+                setNotificationStatus(app.getId(), "notifications.reminder24h", "QUEUED");
                 log.info("24h Herinnering-ID {} succesvol naar queue gestuurd.", app.getId());
             } catch (Exception e) {
                 log.error("Fout bij 24h verwerking voor ID: " + app.getId(), e);
-                app.getNotifications().setReminder24h("FAILED");
-                repository.save(app);
+                setNotificationStatus(app.getId(), "notifications.reminder24h", "FAILED");
             }
         }
 
@@ -61,16 +65,19 @@ public class NotificationScheduler {
             try {
                 NotificationMessage payload = buildPayload(app, "REMINDER_1H");
                 rabbitTemplate.convertAndSend(exchangeName, "notification.reminder", payload);
-                app.getNotifications().setReminder1h("QUEUED");
-                repository.save(app);
-
+                setNotificationStatus(app.getId(), "notifications.reminder1h", "QUEUED");
                 log.info("1h Herinnering-ID {} succesvol naar queue gestuurd.", app.getId());
             } catch (Exception e) {
                 log.error("Fout bij 1h verwerking voor ID: " + app.getId(), e);
-                app.getNotifications().setReminder1h("FAILED");
-                repository.save(app);
+                setNotificationStatus(app.getId(), "notifications.reminder1h", "FAILED");
             }
         }
+    }
+
+    private void setNotificationStatus(String appointmentId, String field, String status) {
+        Query query = new Query(Criteria.where("_id").is(appointmentId));
+        Update update = new Update().set(field, status);
+        mongoTemplate.updateFirst(query, update, "appointments");
     }
 
     private NotificationMessage buildPayload(Appointment app, String notificationType) {

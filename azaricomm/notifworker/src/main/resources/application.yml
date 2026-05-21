@@ -1,0 +1,40 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: azaricomm-communication-service
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/azaricomm}
+
+rabbitmq:
+  exchange: azaricomm.events
+  queue: azaricomm.notifications
+  routing-key: "notification.#"
+
+crypto:
+  secret-key: ${CRYPTO_SECRET_KEY}
+
+providers:
+  swiftsend:
+    url: ${PROVIDER_SWIFTSEND_URL}
+    api-key: ${PROVIDER_SWIFTSEND_API_KEY:}
+  legacylink:
+    url: ${PROVIDER_LEGACYLINK_URL}
+    api-key: ${PROVIDER_LEGACYLINK_API_KEY:}
+  securepost:
+    url: ${PROVIDER_SECUREPOST_URL}
+    api-key: ${PROVIDER_SECUREPOST_API_KEY:}
+  asyncflow:
+    url: ${PROVIDER_ASYNCFLOW_URL}
+    api-key: ${PROVIDER_ASYNCFLOW_API_KEY:}
+
+logging:
+  level:
+    com.azaricomm: DEBUG
