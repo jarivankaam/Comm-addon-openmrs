@@ -54,7 +54,10 @@ public class FhirAppointmentMapper {
     }
 
     private void mapStartTime(Appointment appointment, String fhirStartText) {
-        if (fhirStartText == null || fhirStartText.isBlank()) return;
+        if (fhirStartText == null || fhirStartText.isBlank() || "null".equalsIgnoreCase(fhirStartText)) {
+            throw new IllegalArgumentException("Scheduled time cannot be null or blank");
+        }
+
         try {
             OffsetDateTime odt = OffsetDateTime.parse(fhirStartText);
             Instant parsedTime = odt.toInstant();
@@ -62,9 +65,7 @@ public class FhirAppointmentMapper {
             appointment.setExpireAt(parsedTime.plus(14, ChronoUnit.DAYS));
         } catch (Exception e) {
             log.error("Failed to parse OpenMRS scheduledTime string: {}", fhirStartText, e);
-            Instant fallback = Instant.now();
-            appointment.setScheduledTime(fallback);
-            appointment.setExpireAt(fallback.plus(14, ChronoUnit.DAYS));
+            throw new IllegalArgumentException("Invalid date format received from OpenMRS: " + fhirStartText, e);
         }
     }
 
@@ -99,7 +100,6 @@ public class FhirAppointmentMapper {
 
         if (uuid != null) appointment.setPatientId(uuid);
         appointment.setPatientPhone(phone);
-        appointment.setSubject("Afspraakherinnering");
     }
 
     private void mapExtensions(Appointment appointment, JsonNode extensions) {
