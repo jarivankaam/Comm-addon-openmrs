@@ -1,5 +1,6 @@
 package com.azaricomm.consumer;
 
+import com.azaricomm.metrics.NotifWorkerMetrics;
 import com.azaricomm.model.DeliveryResult;
 import com.azaricomm.model.NotificationMessage;
 import com.azaricomm.provider.ProviderRouter;
@@ -20,29 +21,35 @@ public class NotificationConsumer {
     private final NotificationValidationService validationService;
     private final NotificationRetryService retryService;
     private final AppointmentEnrichmentService enrichmentService;
+    private final NotifWorkerMetrics notifWorkerMetrics;
 
     public NotificationConsumer(ProviderRouter providerRouter,
                                NotificationValidationService validationService,
                                NotificationRetryService retryService,
-                               AppointmentEnrichmentService enrichmentService) {
+                               AppointmentEnrichmentService enrichmentService,
+                               NotifWorkerMetrics notifWorkerMetrics) {
         this.providerRouter = providerRouter;
         this.validationService = validationService;
         this.retryService = retryService;
         this.enrichmentService = enrichmentService;
+        this.notifWorkerMetrics = notifWorkerMetrics;
     }
 
     @RabbitListener(queues = "${rabbitmq.queue:azaricomm.notifications}")
     public void handleNotification(NotificationMessage message) {
         log.info("Received notification: {}", message);
+        notifWorkerMetrics.recordNotificationReceived();
 
         try {
             if (!enrichmentService.enrich(message)) {
                 log.warn("Could not enrich notification, discarding message for appointment: {}", message.getAppointmentId());
+                notifWorkerMetrics.recordNotificationDiscarded("enrichment_failed");
                 return;
             }
 
             if (!validationService.validateMessage(message)) {
                 log.warn("Notification validation failed, discarding message: {}", message);
+                notifWorkerMetrics.recordNotificationDiscarded("validation_failed");
                 return;
             }
 
@@ -50,6 +57,7 @@ public class NotificationConsumer {
             if ("SENT".equals(currentStatus)) {
                 log.warn("[Idempotency] Notification already sent, discarding redelivered message for appointmentId={} type={}",
                         message.getAppointmentId(), message.getNotificationType());
+                notifWorkerMetrics.recordNotificationDiscarded("idempotent");
                 return;
             }
 
@@ -58,6 +66,7 @@ public class NotificationConsumer {
             if (result.isSuccess()) {
                 log.info("Notification delivered: {}", result);
                 retryService.markNotificationAsSent(message.getAppointmentId(), message.getNotificationType());
+                notifWorkerMetrics.recordNotificationDelivered(message.getProvider());
             } else {
                 log.error("Notification delivery failed: {}", result);
                 retryService.saveFailedNotification(
@@ -65,6 +74,7 @@ public class NotificationConsumer {
                     message.getNotificationType(),
                     result.getErrorMessage()
                 );
+                notifWorkerMetrics.recordNotificationFailed(message.getProvider());
             }
 
         } catch (Exception e) {

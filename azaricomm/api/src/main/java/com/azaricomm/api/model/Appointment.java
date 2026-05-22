@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.Instant;
+import java.util.Map;
 
 @Document(collection = "appointments")
 public class Appointment {
@@ -30,6 +31,8 @@ public class Appointment {
 
     @Indexed(expireAfterSeconds = 0)
     private Instant expireAt;
+
+    private Map<String, String> traceContext;
 
     // @transient makes it "invisible" for the database
     @Transient private String patientId;
@@ -104,4 +107,7 @@ public class Appointment {
 
     public String getProvider() { return provider; }
     public void setProvider(String provider) { this.provider = provider; }
+
+    public Map<String, String> getTraceContext() { return traceContext; }
+    public void setTraceContext(Map<String, String> traceContext) { this.traceContext = traceContext; }
 }
