@@ -26,6 +26,27 @@ public class AppointmentEnrichmentService {
         this.objectMapper = objectMapper;
     }
 
+    private String buildBody(NotificationMessage message) {
+        StringBuilder body = new StringBuilder();
+
+        boolean is1h = "REMINDER_1H".equalsIgnoreCase(message.getNotificationType());
+        body.append(is1h
+                ? "Herinnering: U heeft over 1 uur een afspraak."
+                : "Herinnering: U heeft morgen een afspraak.");
+
+        if (message.getAppointmentDateTime() != null) {
+            body.append("\nTijd: ").append(message.getAppointmentDateTime());
+        }
+        if (message.getAppointmentLocation() != null) {
+            body.append("\nLocatie: ").append(message.getAppointmentLocation());
+        }
+        if (message.getInstructions() != null && !message.getInstructions().isBlank()) {
+            body.append("\nInstructies: ").append(message.getInstructions());
+        }
+
+        return body.toString();
+    }
+
     /**
      * Looks up the appointment by ID from MongoDB and populates the message
      * with decrypted patient data, provider, timezone, and scheduled time.
@@ -73,6 +94,8 @@ public class AppointmentEnrichmentService {
         if (appointment.getScheduledTime() != null) {
             message.setAppointmentDateTime(appointment.getScheduledTime().toString());
         }
+
+        message.setBody(buildBody(message));
 
         log.debug("Enriched notification message from MongoDB for appointment: {}", appointmentId);
         return true;
