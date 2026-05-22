@@ -75,6 +75,12 @@ public class SwiftSendProvider implements MessagingProvider {
             return DeliveryResult.failure(getName(), "Request failed: " + e.getMessage());
         }
     }
+//@Override
+//public DeliveryResult send(NotificationMessage message) {
+//    log.info("[SwiftSend] SIMULATIE: Provider ligt plat!");
+//    // We omzeilen de RestTemplate en retourneren direct een foutmelding
+//    return DeliveryResult.failure(getName(), "HTTP 503 Service Unavailable (Simulated)");
+//}
 
     private HttpHeaders buildHeaders() {
         HttpHeaders headers = new HttpHeaders();

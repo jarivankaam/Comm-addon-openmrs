@@ -8,12 +8,14 @@
         <outputRelativeToContentRoot value="true" />
         <module name="scheduler" />
         <module name="api" />
+        <module name="communication-service" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="api" options="-parameters" />
+      <module name="communication-service" options="-parameters" />
       <module name="scheduler" options="-parameters" />
     </option>
   </component>
