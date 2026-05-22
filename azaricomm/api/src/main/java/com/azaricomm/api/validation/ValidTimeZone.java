@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 @Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidTimeZone {
-    String message() default "Invalid time zone (must be a valid IANA zone like '+01:00')";
+    String message() default "Invalid time zone (must be a valid UTC offset like '+01:00')";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
