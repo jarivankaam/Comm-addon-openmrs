@@ -18,7 +18,7 @@ spring:
     password: ${RABBITMQ_PASSWORD:guest}
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb://localhost:27017/azaricomm}
+      uri: ${MONGODB_URI:mongodb://localhost:27017/openmrs}
 
 rabbitmq:
   exchange: azaricomm.events
@@ -33,19 +33,19 @@ fakecomworld:
 
 providers:
   swiftsend:
-    url: ${PROVIDER_SWIFTSEND_URL}
-    api-key: ${PROVIDER_SWIFTSEND_API_KEY:}
+    url: ${PROVIDER_SWIFTSEND_URL:https://httpbin.org/post}
+    api-key: ${PROVIDER_SWIFTSEND_API_KEY:mock-key-123}
   legacylink:
-    url: ${PROVIDER_LEGACYLINK_URL}
+    url: ${PROVIDER_LEGACYLINK_URL:http://localhost:8099/mock/legacylink}
     username: ${PROVIDER_LEGACYLINK_USERNAME:legacylink-user}
     password: ${PROVIDER_LEGACYLINK_PASSWORD:legacylink-password}
   securepost:
-    url: ${PROVIDER_SECUREPOST_URL}
+    url: ${PROVIDER_SECUREPOST_URL:http://localhost:8099/mock/securepost}
     client-id: ${PROVIDER_SECUREPOST_CLIENT_ID:securepost-client-id}
     client-secret: ${PROVIDER_SECUREPOST_CLIENT_SECRET:securepost-secret-key}
   asyncflow:
-    url: ${PROVIDER_ASYNCFLOW_URL}
-    api-key: ${PROVIDER_ASYNCFLOW_API_KEY:}
+    url: ${PROVIDER_ASYNCFLOW_URL:http://localhost:8099/mock/asyncflow}
+    api-key: ${PROVIDER_ASYNCFLOW_API_KEY:mock-key-123}
 
 logging:
   level:
