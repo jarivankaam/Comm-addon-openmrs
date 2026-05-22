@@ -9,7 +9,11 @@ import com.azaricomm.service.NotificationRetryService;
 import com.azaricomm.service.NotificationValidationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -35,7 +39,16 @@ public class NotificationConsumer {
         this.notifWorkerMetrics = notifWorkerMetrics;
     }
 
+    /**
+     * Luistert naar RabbitMQ. Bij een RuntimeException treedt Exponential Backoff op:
+     * Poging 1: Direct | Poging 2: Na 2 seconden | Poging 3: Na 4 seconden.
+     */
     @RabbitListener(queues = "${rabbitmq.queue:azaricomm.notifications}")
+    @Retryable(
+            value = { RuntimeException.class },
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 2000, multiplier = 2.0)
+    )
     public void handleNotification(NotificationMessage message) {
         log.info("Received notification: {}", message);
         notifWorkerMetrics.recordNotificationReceived();
@@ -61,7 +74,11 @@ public class NotificationConsumer {
                 return;
             }
 
-            DeliveryResult result = providerRouter.route(message);
+        if (result.isSuccess()) {
+            log.info("[Consumer] Notification delivered: {}", result);
+            retryService.markNotificationAsSent(message.getAppointmentId(), message.getNotificationType());
+        } else {
+            log.error("[Consumer] Notification delivery failed: {}", result);
 
             if (result.isSuccess()) {
                 log.info("Notification delivered: {}", result);
@@ -77,8 +94,22 @@ public class NotificationConsumer {
                 notifWorkerMetrics.recordNotificationFailed(message.getProvider());
             }
 
-        } catch (Exception e) {
-            log.error("Failed to process notification for appointment: {} - {}", message.getAppointmentId(), e.getMessage(), e);
+            // GOOI EXCEPTION: Dit triggert de @Retryable backoff!
+            throw new RuntimeException("Messaging provider downtime voor " + message.getProvider() + " | Reden: " + result.getErrorMessage());
         }
+    }
+
+    /**
+     * Dit wordt pas uitgevoerd als ALLE 3 de pogingen van handleNotification() zijn gecrasht.
+     * Het bericht wordt nu definitief naar de Dead Letter Queue (DLQ) gestuurd.
+     */
+    @Recover
+    public void handleAllRetriesFailed(RuntimeException e, NotificationMessage message) {
+        log.error("[FATAAL - DLQ] Notificatie voor afspraak {} na 3 pogingen definitief mislukt. Reden: {}",
+                message.getAppointmentId(), e.getMessage());
+
+        // Vertel RabbitMQ: gooi dit bericht NIET terug in de hoofdqueue (requeue=false),
+        // maar stuur hem direct door naar de Dead Letter Exchange (die in de config is ingesteld).
+        throw new AmqpRejectAndDontRequeueException("Doorgestuurd naar DLQ wegens aanhoudende downtime", e);
     }
 }

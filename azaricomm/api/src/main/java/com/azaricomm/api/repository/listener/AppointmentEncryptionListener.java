@@ -26,7 +26,6 @@ public class AppointmentEncryptionListener extends AbstractMongoEventListener<Ap
         try {
             // Bundle all sensitive data together
             EncryptedData encryptedData = new EncryptedData(
-                    appointment.getPatientId(),
                     appointment.getPatientPhone(),
                     appointment.getSubject(),
                     appointment.getInstructions(),

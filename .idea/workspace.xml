@@ -5,9 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="90eb1199-a705-447d-8d14-c0e62a6a5e52" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/azaricomm/scheduler/src/test/java/com/azaricomm/task/NotificationSchedulerTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/utils/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/utils/GlobalExceptionHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azaricomm/api/src/test/java/com/azaricomm/api/utils/GlobalExceptionHandlerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/src/test/java/com/azaricomm/api/utils/GlobalExceptionHandlerTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,6 +25,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 5
@@ -38,112 +40,146 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;JUnit.ApiMetricsTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AppointmentServiceImplTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.EncryptionServiceTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.FhirAppointmentMapperTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.GlobalExceptionHandlerTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.HmacWebhookAuthenticatorTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.com.azaricomm.api in api.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;Spring Boot.ApiApplication.executor&quot;: &quot;Run&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature-unittesten&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.project.maven.repository.indices&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JUnit.ApiMetricsTest.executor": "Run",
+    "JUnit.AppointmentIntegrationTest.executor": "Run",
+    "JUnit.AppointmentServiceImplTest.executor": "Run",
+    "JUnit.DatabaseEncryptionIntegrationTest.executor": "Run",
+    "JUnit.EncryptionServiceTest.executor": "Run",
+    "JUnit.FhirAppointmentMapperTest.executor": "Run",
+    "JUnit.GlobalExceptionHandlerTest.executor": "Run",
+    "JUnit.HmacWebhookAuthenticatorTest.executor": "Run",
+    "JUnit.NotificationSchedulerTest.executor": "Run",
+    "JUnit.NotificationSchedulerTest.when24hReminderFound_ShouldSendToRabbitAndSetStatusToQueued.executor": "Run",
+    "JUnit.WebhookIdempotencyIntegrationTest.executor": "Run",
+    "JUnit.WebhookIdempotencyIntegrationTest.whenDuplicateWebhookReceived_ShouldHandleIdempotentlyWithoutCrashing.executor": "Run",
+    "JUnit.WebhookIntegrationTest.executor": "Run",
+    "JUnit.WebhookSecurityIntegrationTest.executor": "Run",
+    "JUnit.WebhookSecurityIntegrationTest.whenWebhookReceivedWithValidSignature_ShouldReturnOk.executor": "Run",
+    "JUnit.api in api.executor": "Run",
+    "JUnit.com.azaricomm.api in api.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "Spring Boot.ApiApplication.executor": "Run",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "feature-scheduler-unittest",
+    "kotlin-language-version-configured": "true",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
-}</component>
-  <component name="RunManager" selected="JUnit.GlobalExceptionHandlerTest">
-    <configuration name="ApiMetricsTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="api" />
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Dev\Comm-addon-openmrs\azaricomm" />
+    </key>
+  </component>
+  <component name="RunManager" selected="JUnit.NotificationSchedulerTest">
+    <configuration name="NotifWorkerApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.azaricomm.NotifWorkerApplication" />
+      <module name="communication-service" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.azaricomm.api.metrics.*" />
+          <option name="PATTERN" value="com.azaricomm.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="com.azaricomm.api.metrics" />
-      <option name="MAIN_CLASS_NAME" value="com.azaricomm.api.metrics.ApiMetricsTest" />
+      <extension name="net.ashald.envfile">
+        <option name="IS_ENABLED" value="true" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+        </ENTRIES>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="SchedulerApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.azaricomm.SchedulerApplication" />
+      <module name="scheduler" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.azaricomm.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <extension name="net.ashald.envfile">
+        <option name="IS_ENABLED" value="true" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+        </ENTRIES>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NotificationSchedulerTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="scheduler" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.azaricomm.task.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.azaricomm.task" />
+      <option name="MAIN_CLASS_NAME" value="com.azaricomm.task.NotificationSchedulerTest" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="FhirAppointmentMapperTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="api" />
+    <configuration name="NotificationSchedulerTest.when24hReminderFound_ShouldSendToRabbitAndSetStatusToQueued" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="scheduler" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.azaricomm.api.mapper.*" />
+          <option name="PATTERN" value="com.azaricomm.task.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="com.azaricomm.api.mapper" />
-      <option name="MAIN_CLASS_NAME" value="com.azaricomm.api.mapper.FhirAppointmentMapperTest" />
-      <option name="TEST_OBJECT" value="class" />
+      <option name="PACKAGE_NAME" value="com.azaricomm.task" />
+      <option name="MAIN_CLASS_NAME" value="com.azaricomm.task.NotificationSchedulerTest" />
+      <option name="METHOD_NAME" value="when24hReminderFound_ShouldSendToRabbitAndSetStatusToQueued" />
+      <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="GlobalExceptionHandlerTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="api in api" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="api" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.azaricomm.api.utils.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.azaricomm.api.utils" />
-      <option name="MAIN_CLASS_NAME" value="com.azaricomm.api.utils.GlobalExceptionHandlerTest" />
-      <option name="TEST_OBJECT" value="class" />
+      <option name="TEST_OBJECT" value="directory" />
+      <dir value="$PROJECT_DIR$/azaricomm/api/src/test/java/com/azaricomm/api" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="HmacWebhookAuthenticatorTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="api" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.azaricomm.api.webhook.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.azaricomm.api.webhook" />
-      <option name="MAIN_CLASS_NAME" value="com.azaricomm.api.webhook.HmacWebhookAuthenticatorTest" />
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="com.azaricomm.api in api" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="api" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.azaricomm.api.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.azaricomm.api" />
-      <option name="TEST_OBJECT" value="package" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
+    <list>
+      <item itemvalue="Application.NotifWorkerApplication" />
+      <item itemvalue="Application.SchedulerApplication" />
+      <item itemvalue="JUnit.NotificationSchedulerTest" />
+      <item itemvalue="JUnit.NotificationSchedulerTest.when24hReminderFound_ShouldSendToRabbitAndSetStatusToQueued" />
+      <item itemvalue="JUnit.api in api" />
+    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.GlobalExceptionHandlerTest" />
-        <item itemvalue="JUnit.com.azaricomm.api in api" />
-        <item itemvalue="JUnit.HmacWebhookAuthenticatorTest" />
-        <item itemvalue="JUnit.ApiMetricsTest" />
-        <item itemvalue="JUnit.FhirAppointmentMapperTest" />
+        <item itemvalue="JUnit.NotificationSchedulerTest" />
+        <item itemvalue="JUnit.NotificationSchedulerTest.when24hReminderFound_ShouldSendToRabbitAndSetStatusToQueued" />
+        <item itemvalue="JUnit.api in api" />
+        <item itemvalue="Application.SchedulerApplication" />
+        <item itemvalue="Application.NotifWorkerApplication" />
       </list>
     </recent_temporary>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="90eb1199-a705-447d-8d14-c0e62a6a5e52" name="Changes" comment="" />

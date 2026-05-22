@@ -1,7 +1,6 @@
 package com.azaricomm.api.model;
 
 public class EncryptedData {
-    private String patientId;
     private String patientPhone;
     private String subject;
     private String instructions;
@@ -10,8 +9,7 @@ public class EncryptedData {
     // Default constructor for Jackson
     public EncryptedData() {}
 
-    public EncryptedData(String patientId, String patientPhone, String subject, String instructions, String provider) {
-        this.patientId = patientId;
+    public EncryptedData(String patientPhone, String subject, String instructions, String provider) {
         this.patientPhone = patientPhone;
         this.subject = subject;
         this.instructions = instructions;
@@ -19,8 +17,6 @@ public class EncryptedData {
     }
 
     // Getters en Setters
-    public String getPatientId() { return patientId; }
-    public void setPatientId(String patientId) { this.patientId = patientId; }
     public String getPatientPhone() { return patientPhone; }
     public void setPatientPhone(String patientPhone) { this.patientPhone = patientPhone; }
     public String getSubject() { return subject; }
