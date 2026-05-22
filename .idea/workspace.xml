@@ -104,7 +104,7 @@
       <recent name="C:\Dev\Comm-addon-openmrs\azaricomm" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.SchedulerApplication">
+  <component name="RunManager" selected="JUnit.api in api">
     <configuration name="API" type="Application" factoryName="Application" temporary="true">
       <envs>
         <env name="SERVER_PORT" value="8085" />
@@ -178,6 +178,14 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="api in api" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="api" />
+      <option name="TEST_OBJECT" value="directory" />
+      <dir value="$PROJECT_DIR$/azaricomm/api/src/test/java/com/azaricomm/api" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="ApiApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
       <module name="api" />
@@ -196,9 +204,12 @@
       <item itemvalue="Application.API" />
       <item itemvalue="Application.NotifWorkerApplication" />
       <item itemvalue="Application.SchedulerApplication" />
+      <item itemvalue="JUnit.api in api" />
+      <item itemvalue="Spring Boot.ApiApplication" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.api in api" />
         <item itemvalue="Application.SchedulerApplication" />
         <item itemvalue="Application.NotifWorkerApplication" />
         <item itemvalue="Application.API" />
