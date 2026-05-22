@@ -15,6 +15,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
+import java.util.Map;
+
 @Component
 public class SwiftSendProvider implements MessagingProvider {
 
@@ -24,13 +27,16 @@ public class SwiftSendProvider implements MessagingProvider {
     private final RestTemplate restTemplate;
     private final String url;
     private final String apiKey;
+    private final String studentGroup;
 
     public SwiftSendProvider(RestTemplate restTemplate,
                              @Value("${providers.swiftsend.url}") String url,
-                             @Value("${providers.swiftsend.api-key:}") String apiKey) {
+                             @Value("${providers.swiftsend.api-key:}") String apiKey,
+                             @Value("${fakecomworld.student-group}") String studentGroup) {
         this.restTemplate = restTemplate;
         this.url = url;
         this.apiKey = apiKey;
+        this.studentGroup = studentGroup;
     }
 
     @Override
@@ -43,8 +49,14 @@ public class SwiftSendProvider implements MessagingProvider {
         log.info("[SwiftSend] Sending to {} | subject: {}", message.getPatientPhone(), message.getSubject());
         try {
             HttpHeaders headers = buildHeaders();
+            Map<String, Object> body = Map.of(
+                    "type", "SMS",
+                    "recipients", List.of(message.getPatientPhone()),
+                    "content", message.getBody() != null ? message.getBody() : ""
+            );
+
             ResponseEntity<String> response = restTemplate.postForEntity(
-                    url, new HttpEntity<>(message, headers), String.class);
+                    url, new HttpEntity<>(body, headers), String.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 String messageId = extractMessageId(response.getBody());
@@ -67,8 +79,9 @@ public class SwiftSendProvider implements MessagingProvider {
     private HttpHeaders buildHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("X-STUDENT-GROUP", studentGroup);
         if (apiKey != null && !apiKey.isBlank()) {
-            headers.set("X-Api-Key", apiKey);
+            headers.set("X-API-KEY", apiKey);
         }
         return headers;
     }
