@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="90eb1199-a705-447d-8d14-c0e62a6a5e52" name="Changes" comment="" />
+    <list default="true" id="90eb1199-a705-447d-8d14-c0e62a6a5e52" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/src/test/java/com/azaricomm/api/controller/AppointmentIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/src/test/java/com/azaricomm/api/controller/AppointmentIntegrationTest.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -45,6 +48,7 @@
     &quot;JUnit.GlobalExceptionHandlerTest.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.HmacWebhookAuthenticatorTest.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.WebhookIdempotencyIntegrationTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.WebhookIdempotencyIntegrationTest.whenDuplicateWebhookReceived_ShouldHandleIdempotentlyWithoutCrashing.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.WebhookIntegrationTest.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.WebhookSecurityIntegrationTest.executor&quot;: &quot;Run&quot;,
     &quot;JUnit.WebhookSecurityIntegrationTest.whenWebhookReceivedWithValidSignature_ShouldReturnOk.executor&quot;: &quot;Run&quot;,
@@ -62,7 +66,7 @@
     &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.project.maven.repository.indices&quot;
   }
 }</component>
-  <component name="RunManager" selected="JUnit.WebhookIdempotencyIntegrationTest">
+  <component name="RunManager" selected="JUnit.api in api">
     <configuration name="DatabaseEncryptionIntegrationTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="api" />
       <extension name="coverage">
@@ -93,6 +97,22 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="WebhookIdempotencyIntegrationTest.whenDuplicateWebhookReceived_ShouldHandleIdempotentlyWithoutCrashing" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="api" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.azaricomm.api.service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.azaricomm.api.service" />
+      <option name="MAIN_CLASS_NAME" value="com.azaricomm.api.service.WebhookIdempotencyIntegrationTest" />
+      <option name="METHOD_NAME" value="whenDuplicateWebhookReceived_ShouldHandleIdempotentlyWithoutCrashing" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="WebhookIntegrationTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="api" />
       <extension name="coverage">
@@ -108,44 +128,21 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="WebhookSecurityIntegrationTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="api in api" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="api" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.azaricomm.api.controller.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.azaricomm.api.controller" />
-      <option name="MAIN_CLASS_NAME" value="com.azaricomm.api.controller.WebhookSecurityIntegrationTest" />
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="WebhookSecurityIntegrationTest.whenWebhookReceivedWithValidSignature_ShouldReturnOk" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="api" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.azaricomm.api.controller.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.azaricomm.api.controller" />
-      <option name="MAIN_CLASS_NAME" value="com.azaricomm.api.controller.WebhookSecurityIntegrationTest" />
-      <option name="METHOD_NAME" value="whenWebhookReceivedWithValidSignature_ShouldReturnOk" />
-      <option name="TEST_OBJECT" value="method" />
+      <option name="TEST_OBJECT" value="directory" />
+      <dir value="$PROJECT_DIR$/azaricomm/api/src/test/java/com/azaricomm/api" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.api in api" />
         <item itemvalue="JUnit.WebhookIdempotencyIntegrationTest" />
-        <item itemvalue="JUnit.DatabaseEncryptionIntegrationTest" />
-        <item itemvalue="JUnit.WebhookSecurityIntegrationTest.whenWebhookReceivedWithValidSignature_ShouldReturnOk" />
-        <item itemvalue="JUnit.WebhookSecurityIntegrationTest" />
         <item itemvalue="JUnit.WebhookIntegrationTest" />
+        <item itemvalue="JUnit.WebhookIdempotencyIntegrationTest.whenDuplicateWebhookReceived_ShouldHandleIdempotentlyWithoutCrashing" />
+        <item itemvalue="JUnit.DatabaseEncryptionIntegrationTest" />
       </list>
     </recent_temporary>
   </component>

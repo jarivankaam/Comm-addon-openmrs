@@ -12,6 +12,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,7 +47,7 @@ class AppointmentIntegrationTest {
         request.put("patientId", "patient-789");
         request.put("patientPhone", "+31612345678");
         request.put("location", "Room 4a");
-        request.put("scheduledTime", "2026-05-22T10:00:00Z");
+        request.put("scheduledTime", Instant.now().plus(5, ChronoUnit.DAYS));
         request.put("organizationId", "org-456");
         request.put("subject", "Regular checkup");
         return request;
