@@ -96,6 +96,19 @@ public class AppointmentServiceImpl implements AppointmentService {
     public void processWebhook(String json, String remoteAddr, String encoding, int rawLen, int bodyLen) throws IOException {
         Appointment appointment = fhirMapper.map(json);
 
+        if (appointment.getPatientId() != null && appointment.getScheduledTime() != null) {
+            Optional<Appointment> existingAppointment = repository.findByPatientIdAndScheduledTime(
+                    appointment.getPatientId(),
+                    appointment.getScheduledTime()
+            );
+
+            if (existingAppointment.isPresent()) {
+                String exisitingId = existingAppointment.get().getId();
+                log.info("Skip webhook: Appointment with ID {} has already been processed (Idempotent).", exisitingId);
+                return;
+            }
+        }
+
         CreateAppointmentRequest req = new CreateAppointmentRequest();
         req.setOrganizationId(appointment.getOrganizationId());
         req.setScheduledTime(appointment.getScheduledTime());

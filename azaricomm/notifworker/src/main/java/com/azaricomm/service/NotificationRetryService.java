@@ -32,6 +32,21 @@ public class NotificationRetryService {
         this.rabbitTemplate = rabbitTemplate;
     }
 
+    public String getNotificationStatus(String appointmentId, String notificationType) {
+        try {
+            Query query = new Query(Criteria.where("_id").is(appointmentId));
+            Map doc = mongoTemplate.findOne(query, Map.class, "appointments");
+            if (doc == null) return null;
+            Map<?, ?> notifications = (Map<?, ?>) doc.get("notifications");
+            if (notifications == null) return null;
+            String field = "REMINDER_24H".equalsIgnoreCase(notificationType) ? "reminder24h" : "reminder1h";
+            return (String) notifications.get(field);
+        } catch (Exception e) {
+            log.error("Failed to get notification status - appointmentId: {} type: {}", appointmentId, notificationType, e);
+            return null;
+        }
+    }
+
     /**
      * Save a failed notification for retry or increment retry count if already failed
      */
