@@ -21,16 +21,21 @@ rabbitmq:
 crypto:
   secret-key: ${CRYPTO_SECRET_KEY}
 
+fakecomworld:
+  student-group: ${FAKECOMWORLD_STUDENT_GROUP:azaricomm}
+
 providers:
   swiftsend:
     url: ${PROVIDER_SWIFTSEND_URL}
     api-key: ${PROVIDER_SWIFTSEND_API_KEY:}
   legacylink:
     url: ${PROVIDER_LEGACYLINK_URL}
-    api-key: ${PROVIDER_LEGACYLINK_API_KEY:}
+    username: ${PROVIDER_LEGACYLINK_USERNAME:legacylink-user}
+    password: ${PROVIDER_LEGACYLINK_PASSWORD:legacylink-password}
   securepost:
     url: ${PROVIDER_SECUREPOST_URL}
-    api-key: ${PROVIDER_SECUREPOST_API_KEY:}
+    client-id: ${PROVIDER_SECUREPOST_CLIENT_ID:securepost-client-id}
+    client-secret: ${PROVIDER_SECUREPOST_CLIENT_SECRET:securepost-secret-key}
   asyncflow:
     url: ${PROVIDER_ASYNCFLOW_URL}
     api-key: ${PROVIDER_ASYNCFLOW_API_KEY:}
