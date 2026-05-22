@@ -17,7 +17,7 @@ openmrs:
   password: ${OPENMRS_PASSWORD:Admin123}
 
 crypto:
-  secret-key: ${CRYPTO_SECRET_KEY}
+  secret-key: ${CRYPTO_SECRET_KEY:abcdefghijklmnopqrstuvwxyz123456}
 
 logging:
   level:

@@ -8,7 +8,7 @@
 !**/src/test/**/target/
 
 # Environment / secrets
-.env
+azaricomm/.env
 .env.local
 .env.*.local
 

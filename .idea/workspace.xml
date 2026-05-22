@@ -5,8 +5,38 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="90eb1199-a705-447d-8d14-c0e62a6a5e52" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/azaricomm/api/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/ApiApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/ApiApplication.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/client/OpenMrsClient.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/client/OpenMrsClient.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/controller/AppointmentController.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/controller/AppointmentController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/dto/AppointmentCreatedResponse.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/dto/AppointmentCreatedResponse.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/dto/CreateAppointmentRequest.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/dto/CreateAppointmentRequest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/model/Appointment.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/model/Appointment.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/model/AppointmentStatus.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/model/AppointmentStatus.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/model/EncryptedData.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/model/EncryptedData.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/model/NotificationTimeline.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/model/NotificationTimeline.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/model/Provider.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/model/Provider.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/repository/AppointmentRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/repository/AppointmentRepository.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/repository/ProviderRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/repository/ProviderRepository.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/repository/listener/AppointmentEncryptionListener.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/repository/listener/AppointmentEncryptionListener.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/service/EncryptionService.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/service/EncryptionService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/utils/GlobalExceptionHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/utils/GlobalExceptionHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/validation/ProviderValidator.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/validation/ProviderValidator.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/validation/TimeZoneValidator.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/validation/TimeZoneValidator.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/validation/ValidProvider.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/validation/ValidProvider.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/validation/ValidTimeZone.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/validation/ValidTimeZone.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/notifworker/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/notifworker/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/notifworker/src/main/java/com/azaricomm/config/RabbitConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/notifworker/src/main/java/com/azaricomm/config/RabbitConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/notifworker/src/main/java/com/azaricomm/consumer/NotificationConsumer.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/notifworker/src/main/java/com/azaricomm/consumer/NotificationConsumer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/notifworker/src/main/java/com/azaricomm/provider/SwiftSendProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/notifworker/src/main/java/com/azaricomm/provider/SwiftSendProvider.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/notifworker/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/notifworker/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/scheduler/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/scheduler/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,6 +55,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 5
@@ -39,19 +72,98 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;Spring Boot.ApiApplication.executor&quot;: &quot;Run&quot;,
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;dev&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;dlq&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.project.maven.repository.indices&quot;
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
 }</component>
-  <component name="RunManager">
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Dev\Comm-addon-openmrs\azaricomm" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.SchedulerApplication">
+    <configuration name="API" type="Application" factoryName="Application" temporary="true">
+      <envs>
+        <env name="SERVER_PORT" value="8085" />
+        <env name="CRYPTO_SECRET_KEY" value="abcdefghijklmnopqrstuvwxyz123456" />
+      </envs>
+      <option name="MAIN_CLASS_NAME" value="com.azaricomm.api.ApiApplication" />
+      <module name="api" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.azaricomm.api.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <extension name="net.ashald.envfile">
+        <option name="IS_ENABLED" value="true" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+        </ENTRIES>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NotifWorkerApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.azaricomm.NotifWorkerApplication" />
+      <module name="communication-service" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.azaricomm.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <extension name="net.ashald.envfile">
+        <option name="IS_ENABLED" value="true" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+        </ENTRIES>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="SchedulerApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.azaricomm.SchedulerApplication" />
+      <module name="scheduler" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.azaricomm.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <extension name="net.ashald.envfile">
+        <option name="IS_ENABLED" value="true" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+        </ENTRIES>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="ApiApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
       <module name="api" />
@@ -66,12 +178,20 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <list>
+      <item itemvalue="Application.API" />
+      <item itemvalue="Application.NotifWorkerApplication" />
+      <item itemvalue="Application.SchedulerApplication" />
+    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Spring Boot.ApiApplication" />
+        <item itemvalue="Application.SchedulerApplication" />
+        <item itemvalue="Application.NotifWorkerApplication" />
+        <item itemvalue="Application.API" />
       </list>
     </recent_temporary>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="90eb1199-a705-447d-8d14-c0e62a6a5e52" name="Changes" comment="" />
