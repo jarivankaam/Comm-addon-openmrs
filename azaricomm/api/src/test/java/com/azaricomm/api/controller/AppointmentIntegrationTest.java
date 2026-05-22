@@ -41,7 +41,7 @@ class AppointmentIntegrationTest {
     private Map<String, Object> createValidBaseRequest() {
         Map<String, Object> request = new HashMap<>();
         request.put("provider", "active-provider-123");
-        request.put("timezone", "Europe/Amsterdam");
+        request.put("timezone", "+01:00");
         request.put("patientId", "patient-789");
         request.put("patientPhone", "+31612345678");
         request.put("location", "Room 4a");
@@ -91,7 +91,7 @@ class AppointmentIntegrationTest {
                 .thenThrow(new RuntimeException("MongoDB connection timeout failure!"));
 
         mockMvc.perform(post("/api/appointments")
-                        .contentType(MediaType.APPLICATION_JSON) 
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.status").value(500))

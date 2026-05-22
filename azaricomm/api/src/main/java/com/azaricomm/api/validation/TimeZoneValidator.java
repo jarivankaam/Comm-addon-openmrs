@@ -3,6 +3,7 @@ package com.azaricomm.api.validation;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 public class TimeZoneValidator implements ConstraintValidator<ValidTimeZone, String> {
 
@@ -14,7 +15,7 @@ public class TimeZoneValidator implements ConstraintValidator<ValidTimeZone, Str
 
         try {
             // try to match the zone with java timezone. If it fails, it isnt the right format.
-            ZoneId.of(timeZoneStr);
+            ZoneOffset.of(timeZoneStr);
             return true;
         } catch (Exception e) {
             return false;
