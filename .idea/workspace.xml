@@ -6,8 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="90eb1199-a705-447d-8d14-c0e62a6a5e52" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/dto/CreateAppointmentRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/dto/CreateAppointmentRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/mapper/FhirAppointmentMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/mapper/FhirAppointmentMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/utils/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/src/main/java/com/azaricomm/api/utils/GlobalExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/api/src/test/java/com/azaricomm/api/utils/GlobalExceptionHandlerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/src/test/java/com/azaricomm/api/utils/GlobalExceptionHandlerTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,7 +59,7 @@
     &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.project.maven.repository.indices&quot;
   }
 }</component>
-  <component name="RunManager" selected="JUnit.com.azaricomm.api in api">
+  <component name="RunManager" selected="JUnit.GlobalExceptionHandlerTest">
     <configuration name="ApiMetricsTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="api" />
       <extension name="coverage">
@@ -136,9 +136,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.GlobalExceptionHandlerTest" />
         <item itemvalue="JUnit.com.azaricomm.api in api" />
         <item itemvalue="JUnit.HmacWebhookAuthenticatorTest" />
-        <item itemvalue="JUnit.GlobalExceptionHandlerTest" />
         <item itemvalue="JUnit.ApiMetricsTest" />
         <item itemvalue="JUnit.FhirAppointmentMapperTest" />
       </list>
