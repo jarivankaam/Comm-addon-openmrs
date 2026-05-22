@@ -2,7 +2,6 @@ package com.azaricomm.api.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 
 public class TimeZoneValidator implements ConstraintValidator<ValidTimeZone, String> {
