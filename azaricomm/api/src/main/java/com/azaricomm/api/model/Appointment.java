@@ -24,7 +24,7 @@ public class Appointment {
     private String timezone;
 
     @NotNull(message = "Status can only be: SCHEDULED, QUEUED, SENT, CANCELLED, or FAILED")
-    private AppointmentStatus status; // SCHEDULED, QUEUED, SENT, CANCELLED, FAILED
+    private AppointmentStatus status;
     private NotificationTimeline notifications = new NotificationTimeline();
     private Instant createdAt;
 
@@ -34,7 +34,7 @@ public class Appointment {
     // @transient makes it "invisible" for the database
     @Transient private String patientId;
     @Transient private String patientPhone;
-    @Transient private String subject;
+    @Transient private String subject = "Afspraakherinnering";;
     @Transient private String location;
     @Transient private String instructions;
     @Transient private String provider;

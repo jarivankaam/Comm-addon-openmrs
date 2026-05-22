@@ -100,7 +100,6 @@ public class FhirAppointmentMapper {
 
         if (uuid != null) appointment.setPatientId(uuid);
         appointment.setPatientPhone(phone);
-        appointment.setSubject("Afspraakherinnering");
     }
 
     private void mapExtensions(Appointment appointment, JsonNode extensions) {
