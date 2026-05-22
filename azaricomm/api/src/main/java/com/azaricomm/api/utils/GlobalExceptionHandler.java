@@ -76,8 +76,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleAllExceptions(
             Exception ex, HttpServletRequest request) {
 
-        // Log de échte fout inclusief stacktrace intern in de console/files,
-        // zodat jij als ontwikkelaar kunt zien wat er écht misging.
         log.error("An unhandled exception occurred at URI: {}", request.getRequestURI(), ex);
 
         Map<String, Object> body = new LinkedHashMap<>();
@@ -86,7 +84,6 @@ public class GlobalExceptionHandler {
         body.put("error", HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
         body.put("path", request.getRequestURI());
 
-        // Maskeer de foutboodschap voor de buitenwereld om datalekkage te voorkomen
         body.put("message", "An unexpected error occurred on the server.");
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
