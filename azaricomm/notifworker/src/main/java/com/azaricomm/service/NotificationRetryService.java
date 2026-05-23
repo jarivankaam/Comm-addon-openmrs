@@ -151,14 +151,15 @@ public class NotificationRetryService {
 
             // Find 24h reminders due for retry
             Query query24h = new Query(Criteria
-                .where("notifications.reminder24h").is("FAILED")
-                .and("notifications.reminder24hNextRetryTime").lte(now)
-                .and("notifications.reminder24hRetryCount").lt(3));
+                    .where("notifications.reminder24h").is("FAILED")
+                    .and("notifications.reminder24hNextRetryTime").lte(now)
+                    .and("notifications.reminder24hRetryCount").lt(3));
             List<Map> due24h = mongoTemplate.find(query24h, Map.class, "appointments");
 
             for (Map apt : due24h) {
                 try {
-                    String appointmentId = (String) apt.get("_id");
+                    // FIX: Gebruik .toString() in plaats van (String) cast
+                    String appointmentId = apt.get("_id").toString();
                     NotificationMessage message = buildNotificationMessage(apt, "REMINDER_24H");
                     rabbitTemplate.convertAndSend(exchangeName, "notification.retry", message);
                     log.info("Republished 24h reminder for retry - appointmentId: {}", appointmentId);
@@ -169,14 +170,15 @@ public class NotificationRetryService {
 
             // Find 1h reminders due for retry
             Query query1h = new Query(Criteria
-                .where("notifications.reminder1h").is("FAILED")
-                .and("notifications.reminder1hNextRetryTime").lte(now)
-                .and("notifications.reminder1hRetryCount").lt(3));
+                    .where("notifications.reminder1h").is("FAILED")
+                    .and("notifications.reminder1hNextRetryTime").lte(now)
+                    .and("notifications.reminder1hRetryCount").lt(3));
             List<Map> due1h = mongoTemplate.find(query1h, Map.class, "appointments");
 
             for (Map apt : due1h) {
                 try {
-                    String appointmentId = (String) apt.get("_id");
+                    // FIX: Gebruik .toString() en herstel de variabelenaam naar appointmentId
+                    String appointmentId = apt.get("_id").toString();
                     NotificationMessage message = buildNotificationMessage(apt, "REMINDER_1H");
                     rabbitTemplate.convertAndSend(exchangeName, "notification.retry", message);
                     log.info("Republished 1h reminder for retry - appointmentId: {}", appointmentId);
@@ -195,7 +197,11 @@ public class NotificationRetryService {
 
     private NotificationMessage buildNotificationMessage(Map apt, String notificationType) {
         NotificationMessage msg = new NotificationMessage();
-        msg.setAppointmentId((String) apt.getOrDefault("appointmentId", apt.get("_id")));
+
+        // FIX: Voorkom ClassCastException als _id wordt gebruikt als fallback
+        Object idValue = apt.getOrDefault("appointmentId", apt.get("_id"));
+        msg.setAppointmentId(idValue != null ? idValue.toString() : null);
+
         msg.setNotificationType(notificationType);
         msg.setProvider((String) apt.getOrDefault("providerId", "swiftsend"));
         Object scheduledTime = apt.get("scheduledTime");

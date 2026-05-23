@@ -6,7 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="90eb1199-a705-447d-8d14-c0e62a6a5e52" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azaricomm/notifworker/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/notifworker/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/notifworker/src/main/java/com/azaricomm/service/NotificationRetryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/notifworker/src/main/java/com/azaricomm/service/NotificationRetryService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/notifworker/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/notifworker/src/main/resources/application.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,7 +66,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "Spring Boot.ApiApplication.executor": "Run",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "feature-scheduler-unittest",
+    "git-widget-placeholder": "dlq",
     "kotlin-language-version-configured": "true",
     "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "preferences.pluginManager"
@@ -76,7 +77,7 @@
       <recent name="C:\Dev\Comm-addon-openmrs\azaricomm" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.SchedulerApplication">
+  <component name="RunManager">
     <configuration name="API" type="Application" factoryName="Application" temporary="true">
       <envs>
         <env name="SERVER_PORT" value="8085" />
@@ -190,6 +191,7 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="Application.API" />
       <item itemvalue="Application.NotifWorkerApplication" />
       <item itemvalue="Application.SchedulerApplication" />
       <item itemvalue="JUnit.NotificationSchedulerTest" />
@@ -198,11 +200,11 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.NotifWorkerApplication" />
+        <item itemvalue="Application.SchedulerApplication" />
+        <item itemvalue="Application.API" />
         <item itemvalue="JUnit.NotificationSchedulerTest" />
         <item itemvalue="JUnit.NotificationSchedulerTest.when24hReminderFound_ShouldSendToRabbitAndSetStatusToQueued" />
-        <item itemvalue="JUnit.api in api" />
-        <item itemvalue="Application.SchedulerApplication" />
-        <item itemvalue="Application.NotifWorkerApplication" />
       </list>
     </recent_temporary>
   </component>
