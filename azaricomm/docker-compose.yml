@@ -23,6 +23,7 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
@@ -91,14 +92,17 @@ services:
       RABBITMQ_PORT: 5672
       RABBITMQ_USERNAME: guest
       RABBITMQ_PASSWORD: guest
-      PROVIDER_SWIFTSEND_URL: ${PROVIDER_SWIFTSEND_URL:-https://httpbin.org/post}
-      PROVIDER_SWIFTSEND_API_KEY: ${PROVIDER_SWIFTSEND_API_KEY:-}
-      PROVIDER_LEGACYLINK_URL: ${PROVIDER_LEGACYLINK_URL:-https://httpbin.org/post}
-      PROVIDER_LEGACYLINK_API_KEY: ${PROVIDER_LEGACYLINK_API_KEY:-}
-      PROVIDER_SECUREPOST_URL: ${PROVIDER_SECUREPOST_URL:-https://httpbin.org/post}
-      PROVIDER_SECUREPOST_API_KEY: ${PROVIDER_SECUREPOST_API_KEY:-}
-      PROVIDER_ASYNCFLOW_URL: ${PROVIDER_ASYNCFLOW_URL:-https://httpbin.org/post}
-      PROVIDER_ASYNCFLOW_API_KEY: ${PROVIDER_ASYNCFLOW_API_KEY:-}
+      FAKECOMWORLD_STUDENT_GROUP: ${FAKECOMWORLD_STUDENT_GROUP:-azaricomm}
+      PROVIDER_SWIFTSEND_URL: ${PROVIDER_SWIFTSEND_URL:-http://fakecomworld:8080/swiftsend}
+      PROVIDER_SWIFTSEND_API_KEY: ${PROVIDER_SWIFTSEND_API_KEY:-your-api-key-here}
+      PROVIDER_LEGACYLINK_URL: ${PROVIDER_LEGACYLINK_URL:-http://fakecomworld:8080/LegacyLink/SendSms}
+      PROVIDER_LEGACYLINK_USERNAME: ${PROVIDER_LEGACYLINK_USERNAME:-legacylink-user}
+      PROVIDER_LEGACYLINK_PASSWORD: ${PROVIDER_LEGACYLINK_PASSWORD:-legacylink-password}
+      PROVIDER_SECUREPOST_URL: ${PROVIDER_SECUREPOST_URL:-http://fakecomworld:8080/securepost}
+      PROVIDER_SECUREPOST_CLIENT_ID: ${PROVIDER_SECUREPOST_CLIENT_ID:-securepost-client-id}
+      PROVIDER_SECUREPOST_CLIENT_SECRET: ${PROVIDER_SECUREPOST_CLIENT_SECRET:-securepost-secret-key}
+      PROVIDER_ASYNCFLOW_URL: ${PROVIDER_ASYNCFLOW_URL:-http://fakecomworld:8080/asyncflow}
+      PROVIDER_ASYNCFLOW_API_KEY: ${PROVIDER_ASYNCFLOW_API_KEY:-asyncflow-api-key}
       OTEL_SERVICE_NAME: azaricomm-notifworker
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       OTEL_METRICS_EXPORTER: otlp
@@ -109,6 +113,15 @@ services:
         condition: service_healthy
       mongodb:
         condition: service_healthy
+      fakecomworld:
+        condition: service_started
+
+  fakecomworld:
+    image: ghcr.io/avansict/in2.4-fakecomworld:main
+    platform: linux/amd64
+    container_name: azaricomm-fakecomworld
+    ports:
+      - "1337:8080"
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest

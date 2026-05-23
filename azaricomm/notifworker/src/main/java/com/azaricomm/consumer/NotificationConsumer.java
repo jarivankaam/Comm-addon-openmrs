@@ -61,6 +61,13 @@ public class NotificationConsumer {
             return;
         }
 
+        String currentStatus = retryService.getNotificationStatus(message.getAppointmentId(), message.getNotificationType());
+        if ("SENT".equals(currentStatus)) {
+            log.warn("[Idempotency] Notification already sent, discarding redelivered message for appointmentId={} type={}",
+                    message.getAppointmentId(), message.getNotificationType());
+            return;
+        }
+
         // 3. Routering & Verzending naar Provider (Downtime Provider check)
         DeliveryResult result = providerRouter.route(message);
 

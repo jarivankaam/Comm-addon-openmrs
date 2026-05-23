@@ -19,7 +19,10 @@ rabbitmq:
   routing-key: "notification.#"
 
 crypto:
-  secret-key: ${CRYPTO_SECRET_KEY:abcdefghijklmnopqrstuvwxyz123456}
+  secret-key: ${CRYPTO_SECRET_KEY}
+
+fakecomworld:
+  student-group: ${FAKECOMWORLD_STUDENT_GROUP:azaricomm}
 
 providers:
   swiftsend:
@@ -27,10 +30,12 @@ providers:
     api-key: ${PROVIDER_SWIFTSEND_API_KEY:mock-key-123}
   legacylink:
     url: ${PROVIDER_LEGACYLINK_URL:http://localhost:8099/mock/legacylink}
-    api-key: ${PROVIDER_LEGACYLINK_API_KEY:mock-key-123}
+    username: ${PROVIDER_LEGACYLINK_USERNAME:legacylink-user}
+    password: ${PROVIDER_LEGACYLINK_PASSWORD:legacylink-password}
   securepost:
     url: ${PROVIDER_SECUREPOST_URL:http://localhost:8099/mock/securepost}
-    api-key: ${PROVIDER_SECUREPOST_API_KEY:mock-key-123}
+    client-id: ${PROVIDER_SECUREPOST_CLIENT_ID:securepost-client-id}
+    client-secret: ${PROVIDER_SECUREPOST_CLIENT_SECRET:securepost-secret-key}
   asyncflow:
     url: ${PROVIDER_ASYNCFLOW_URL:http://localhost:8099/mock/asyncflow}
     api-key: ${PROVIDER_ASYNCFLOW_API_KEY:mock-key-123}

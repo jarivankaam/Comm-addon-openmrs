@@ -2,6 +2,8 @@ package com.azaricomm.api.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import jakarta.validation.constraints.NotNull;
@@ -9,6 +11,9 @@ import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 
 @Document(collection = "appointments")
+@CompoundIndexes({
+        @CompoundIndex(name = "patient_schedule_idx", def = "{'patientId': 1, 'scheduledTime': 1}", unique = true)
+})
 public class Appointment {
 
     @Id
@@ -18,13 +23,15 @@ public class Appointment {
     @Transient private String organizationName;
     private Instant scheduledTime;
 
+    private String patientId;
+
     private String dataEncrypted;
     private String locationEncrypted;
 
     private String timezone;
 
     @NotNull(message = "Status can only be: SCHEDULED, QUEUED, SENT, CANCELLED, or FAILED")
-    private AppointmentStatus status; // SCHEDULED, QUEUED, SENT, CANCELLED, FAILED
+    private AppointmentStatus status;
     private NotificationTimeline notifications = new NotificationTimeline();
     private Instant createdAt;
 
@@ -32,9 +39,8 @@ public class Appointment {
     private Instant expireAt;
 
     // @transient makes it "invisible" for the database
-    @Transient private String patientId;
     @Transient private String patientPhone;
-    @Transient private String subject;
+    @Transient private String subject = "Afspraakherinnering";;
     @Transient private String location;
     @Transient private String instructions;
     @Transient private String provider;
@@ -47,6 +53,9 @@ public class Appointment {
 
     public String getOrganizationName() { return organizationName; }
     public void setOrganizationName(String organizationName) { this.organizationName = organizationName; }
+
+    public String getPatientId() { return patientId; }
+    public void setPatientId(String patientId) { this.patientId = patientId; }
 
     public String getDataEncrypted() { return dataEncrypted; }
     public void setDataEncrypted(String dataEncrypted) { this.dataEncrypted = dataEncrypted; }
@@ -84,9 +93,6 @@ public class Appointment {
     public void setExpireAt(Instant expireAt) {this.expireAt = expireAt;}
 
     // Transient getters/setters
-    public String getPatientId() { return patientId; }
-    public void setPatientId(String patientId) { this.patientId = patientId; }
-
     public String getPatientPhone() { return patientPhone; }
     public void setPatientPhone(String patientPhone) { this.patientPhone = patientPhone; }
 
