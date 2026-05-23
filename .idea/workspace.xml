@@ -5,7 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="90eb1199-a705-447d-8d14-c0e62a6a5e52" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/azaricomm/notifworker/src/test/java/com/azaricomm/consumer/NotificationConsumerTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/azaricomm/notifworker/src/test/java/com/azaricomm/intergration/NotificationConsumerIntegrationTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/notifworker/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/notifworker/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,7 +62,7 @@
       <recent name="C:\Dev\Comm-addon-openmrs\azaricomm" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.SchedulerApplication">
+  <component name="RunManager">
     <configuration name="API" type="Application" factoryName="Application" temporary="true">
       <envs>
         <env name="SERVER_PORT" value="8085" />
