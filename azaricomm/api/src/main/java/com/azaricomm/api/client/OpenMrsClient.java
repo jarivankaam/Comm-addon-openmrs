@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.net.ssl.SSLParameters;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -18,7 +19,7 @@ public class OpenMrsClient {
 
     private static final Logger log = LoggerFactory.getLogger(OpenMrsClient.class);
 
-    private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
 
     @Value("${openmrs.base-url}")
@@ -32,6 +33,11 @@ public class OpenMrsClient {
 
     public OpenMrsClient(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
+        SSLParameters tls13Params = new SSLParameters();
+        tls13Params.setProtocols(new String[]{"TLSv1.3"});
+        this.httpClient = HttpClient.newBuilder()
+                .sslParameters(tls13Params)
+                .build();
     }
 
     public JsonNode getPatientByIdentifier(String identifier) {

@@ -35,12 +35,14 @@ services:
       context: ./api
     container_name: azaricomm-api
     ports:
-      - "8080:8080"
+      - "8443:8443"
     environment:
+      SERVER_PORT: 8443
+      SSL_KEY_STORE_PASSWORD: ${SSL_KEY_STORE_PASSWORD:-changeit}
       MONGODB_URI: mongodb://mongodb:27017/azaricomm
       CRYPTO_SECRET_KEY: ${CRYPTO_SECRET_KEY:-DitIsMijnSuperGeheimeSleutel123!}
       WEBHOOK_SECRET: ${WEBHOOK_SECRET:-}
-      OPENMRS_BASE_URL: ${OPENMRS_BASE_URL:-http://localhost:8081}
+      OPENMRS_BASE_URL: ${OPENMRS_BASE_URL:-https://localhost:8081}
       OPENMRS_USERNAME: ${OPENMRS_USERNAME:-admin}
       OPENMRS_PASSWORD: ${OPENMRS_PASSWORD:-Admin123}
       RABBITMQ_HOST: rabbitmq
@@ -86,6 +88,7 @@ services:
       context: ./notifworker
     container_name: azaricomm-notifworker
     environment:
+      SSL_KEY_STORE_PASSWORD: ${SSL_KEY_STORE_PASSWORD:-changeit}
       MONGODB_URI: mongodb://mongodb:27017/azaricomm
       CRYPTO_SECRET_KEY: ${CRYPTO_SECRET_KEY:-DitIsMijnSuperGeheimeSleutel123!}
       RABBITMQ_HOST: rabbitmq

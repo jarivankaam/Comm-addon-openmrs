@@ -1,1 +1,2 @@
 .env
+**/src/main/resources/keystore.p12
