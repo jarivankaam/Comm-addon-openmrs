@@ -69,9 +69,8 @@ public class NotificationScheduler {
             publishNotification(app, "REMINDER_24H", "notifications.reminder24h");
         }
 
-        Instant end1h = now.plus(1, ChronoUnit.HOURS);
-
         // --- STAP 3: 1 UUR VAN TEVOREN ---
+        Instant end1h = now.plus(1, ChronoUnit.HOURS);
         List<Appointment> tasks1h = repository.findTasksFor1hReminder(now, end1h);
         for (Appointment app : tasks1h) {
             publishNotification(app, "REMINDER_1H", "notifications.reminder1h");
@@ -116,18 +115,7 @@ public class NotificationScheduler {
     }
 
     private NotificationMessage buildPayload(Appointment app, String notificationType) {
-        String provider = app.getProviderId();
-        if (provider == null || provider.trim().isEmpty()) {
-            provider = "swiftsend";
-        }
-        String appointmentId = app.getAppointmentId();
-        if (appointmentId == null || appointmentId.trim().isEmpty()) {
-            appointmentId = app.getId();
-        }
-        NotificationMessage payload = new NotificationMessage(appointmentId, notificationType, provider);
-        if (app.getScheduledTime() != null) {
-            payload.setAppointmentDateTime(app.getScheduledTime().toString());
-        }
-        return payload;
+        // Directe en vederlichte mapping: MongoDB id wordt de appointmentId op RabbitMQ
+        return new NotificationMessage(app.getId(), notificationType);
     }
 }
