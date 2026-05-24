@@ -6,8 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="90eb1199-a705-447d-8d14-c0e62a6a5e52" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azaricomm/notifworker/src/main/java/com/azaricomm/service/NotificationRetryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/notifworker/src/main/java/com/azaricomm/service/NotificationRetryService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azaricomm/notifworker/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/notifworker/src/main/resources/application.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,7 +64,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "Spring Boot.ApiApplication.executor": "Run",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "dlq",
+    "git-widget-placeholder": "dev",
     "kotlin-language-version-configured": "true",
     "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "preferences.pluginManager"
@@ -77,7 +75,7 @@
       <recent name="C:\Dev\Comm-addon-openmrs\azaricomm" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.API">
     <configuration name="API" type="Application" factoryName="Application" temporary="true">
       <envs>
         <env name="SERVER_PORT" value="8085" />

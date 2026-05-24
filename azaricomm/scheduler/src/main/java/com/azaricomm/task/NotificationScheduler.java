@@ -58,16 +58,21 @@ public class NotificationScheduler {
 
     @Scheduled(fixedDelay = 60000)
     public void processAppointments() {
-        Instant nu = Instant.now();
+        Instant now = Instant.now();
+
+        Instant start24h = now.plus(2, ChronoUnit.HOURS);
+        Instant end24h = now.plus(24, ChronoUnit.HOURS);
 
         // --- STAP 2: 24 UUR VAN TEVOREN ---
-        List<Appointment> tasks24h = repository.findTasksFor24hReminder(nu, nu.plus(24, ChronoUnit.HOURS));
+        List<Appointment> tasks24h = repository.findTasksFor24hReminder(start24h, end24h);
         for (Appointment app : tasks24h) {
             publishNotification(app, "REMINDER_24H", "notifications.reminder24h");
         }
 
+        Instant end1h = now.plus(1, ChronoUnit.HOURS);
+
         // --- STAP 3: 1 UUR VAN TEVOREN ---
-        List<Appointment> tasks1h = repository.findTasksFor1hReminder(nu, nu.plus(1, ChronoUnit.HOURS));
+        List<Appointment> tasks1h = repository.findTasksFor1hReminder(now, end1h);
         for (Appointment app : tasks1h) {
             publishNotification(app, "REMINDER_1H", "notifications.reminder1h");
         }

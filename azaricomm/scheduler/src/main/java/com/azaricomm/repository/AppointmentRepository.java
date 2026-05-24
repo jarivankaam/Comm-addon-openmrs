@@ -13,7 +13,7 @@ public interface AppointmentRepository extends MongoRepository<Appointment, Stri
 
     // Query voor Stap 2: Zoek afspraken in het 24h-venster waarvan de 24h-reminder nog SCHEDULED is
     @Query("{ 'status': 'SCHEDULED', 'scheduledTime': { $gt: ?0, $lte: ?1 }, 'notifications.reminder24h': 'SCHEDULED' }")
-    List<Appointment> findTasksFor24hReminder(Instant now, Instant upperBound);
+    List<Appointment> findTasksFor24hReminder(Instant lowerbound, Instant upperBound);
 
     // Query voor Stap 3: Zoek afspraken in het 1h-venster waarvan de 1h-reminder nog SCHEDULED is
     @Query("{ 'status': 'SCHEDULED', 'scheduledTime': { $gt: ?0, $lte: ?1 }, 'notifications.reminder1h': 'SCHEDULED' }")
