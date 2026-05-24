@@ -28,9 +28,10 @@ public class NotificationConsumer {
     private final NotifWorkerMetrics notifWorkerMetrics;
 
     public NotificationConsumer(ProviderRouter providerRouter,
-                                NotificationValidationService validationService,
-                                NotificationRetryService retryService,
-                                AppointmentEnrichmentService enrichmentService) {
+                               NotificationValidationService validationService,
+                               NotificationRetryService retryService,
+                               AppointmentEnrichmentService enrichmentService,
+                               NotifWorkerMetrics notifWorkerMetrics) {
         this.providerRouter = providerRouter;
         this.validationService = validationService;
         this.retryService = retryService;
@@ -49,30 +50,29 @@ public class NotificationConsumer {
             backoff = @Backoff(delay = 2000, multiplier = 2.0)
     )
     public void handleNotification(NotificationMessage message) {
-        log.info("[Consumer] Processing notification: {}", message);
+        log.info("Received notification: {}", message);
+        notifWorkerMetrics.recordNotificationReceived();
 
-        // 1. Verrijken (Downtime OpenMRS / Database check)
-        // Als de enrichment service false returnt óf een crash gooit omdat OpenMRS plat ligt:
-        if (!enrichmentService.enrich(message)) {
-            throw new RuntimeException("OpenMRS/Database downtime gedetecteerd tijdens verrijken van afspraak: " + message.getAppointmentId());
-        }
+        try {
+            if (!enrichmentService.enrich(message)) {
+                log.warn("Could not enrich notification, discarding message for appointment: {}", message.getAppointmentId());
+                notifWorkerMetrics.recordNotificationDiscarded("enrichment_failed");
+                return;
+            }
 
-        // 2. Validatie (Functionele check)
-        // Als data corrupt is, heeft herhalen geen zin. Dit gooien we direct weg (discard).
-        if (!validationService.validateMessage(message)) {
-            log.warn("[Consumer] Validation failed, data corrupt. Discarding message permanently: {}", message);
-            return;
-        }
+            if (!validationService.validateMessage(message)) {
+                log.warn("Notification validation failed, discarding message: {}", message);
+                notifWorkerMetrics.recordNotificationDiscarded("validation_failed");
+                return;
+            }
 
-        String currentStatus = retryService.getNotificationStatus(message.getAppointmentId(), message.getNotificationType());
-        if ("SENT".equals(currentStatus)) {
-            log.warn("[Idempotency] Notification already sent, discarding redelivered message for appointmentId={} type={}",
-                    message.getAppointmentId(), message.getNotificationType());
-            return;
-        }
-
-        // 3. Routering & Verzending naar Provider (Downtime Provider check)
-        DeliveryResult result = providerRouter.route(message);
+            String currentStatus = retryService.getNotificationStatus(message.getAppointmentId(), message.getNotificationType());
+            if ("SENT".equals(currentStatus)) {
+                log.warn("[Idempotency] Notification already sent, discarding redelivered message for appointmentId={} type={}",
+                        message.getAppointmentId(), message.getNotificationType());
+                notifWorkerMetrics.recordNotificationDiscarded("idempotent");
+                return;
+            }
 
         if (result.isSuccess()) {
             log.info("[Consumer] Notification delivered: {}", result);
@@ -80,12 +80,19 @@ public class NotificationConsumer {
         } else {
             log.error("[Consumer] Notification delivery failed: {}", result);
 
-            // Sla de fout lokaal op voor het dashboard
-            retryService.saveFailedNotification(
+            if (result.isSuccess()) {
+                log.info("Notification delivered: {}", result);
+                retryService.markNotificationAsSent(message.getAppointmentId(), message.getNotificationType());
+                notifWorkerMetrics.recordNotificationDelivered(message.getProvider());
+            } else {
+                log.error("Notification delivery failed: {}", result);
+                retryService.saveFailedNotification(
                     message.getAppointmentId(),
                     message.getNotificationType(),
                     result.getErrorMessage()
-            );
+                );
+                notifWorkerMetrics.recordNotificationFailed(message.getProvider());
+            }
 
             // GOOI EXCEPTION: Dit triggert de @Retryable backoff!
             throw new RuntimeException("Messaging provider downtime voor " + message.getProvider() + " | Reden: " + result.getErrorMessage());

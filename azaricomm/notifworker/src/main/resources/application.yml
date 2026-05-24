@@ -26,7 +26,7 @@ rabbitmq:
   routing-key: "notification.#"
 
 crypto:
-  secret-key: ${CRYPTO_SECRET_KEY}
+  secret-key: abcdefghijklmnopqrstuvwxyz123456
 
 fakecomworld:
   student-group: ${FAKECOMWORLD_STUDENT_GROUP:azaricomm}

@@ -5,8 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="90eb1199-a705-447d-8d14-c0e62a6a5e52" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/azaricomm/scheduler/src/test/java/com/azaricomm/task/NotificationSchedulerTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/notifworker/src/main/java/com/azaricomm/service/NotificationRetryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/notifworker/src/main/java/com/azaricomm/service/NotificationRetryService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/notifworker/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/notifworker/src/main/resources/application.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,7 +66,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "Spring Boot.ApiApplication.executor": "Run",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "feature-scheduler-unittest",
+    "git-widget-placeholder": "dlq",
     "kotlin-language-version-configured": "true",
     "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "preferences.pluginManager"
@@ -76,7 +77,34 @@
       <recent name="C:\Dev\Comm-addon-openmrs\azaricomm" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.NotificationSchedulerTest">
+  <component name="RunManager">
+    <configuration name="API" type="Application" factoryName="Application" temporary="true">
+      <envs>
+        <env name="SERVER_PORT" value="8085" />
+        <env name="CRYPTO_SECRET_KEY" value="abcdefghijklmnopqrstuvwxyz123456" />
+      </envs>
+      <option name="MAIN_CLASS_NAME" value="com.azaricomm.api.ApiApplication" />
+      <module name="api" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.azaricomm.api.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <extension name="net.ashald.envfile">
+        <option name="IS_ENABLED" value="true" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+        </ENTRIES>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="NotifWorkerApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.azaricomm.NotifWorkerApplication" />
       <module name="communication-service" />
@@ -163,6 +191,7 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="Application.API" />
       <item itemvalue="Application.NotifWorkerApplication" />
       <item itemvalue="Application.SchedulerApplication" />
       <item itemvalue="JUnit.NotificationSchedulerTest" />
@@ -171,11 +200,11 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.NotifWorkerApplication" />
+        <item itemvalue="Application.SchedulerApplication" />
+        <item itemvalue="Application.API" />
         <item itemvalue="JUnit.NotificationSchedulerTest" />
         <item itemvalue="JUnit.NotificationSchedulerTest.when24hReminderFound_ShouldSendToRabbitAndSetStatusToQueued" />
-        <item itemvalue="JUnit.api in api" />
-        <item itemvalue="Application.SchedulerApplication" />
-        <item itemvalue="Application.NotifWorkerApplication" />
       </list>
     </recent_temporary>
   </component>
