@@ -5,12 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="90eb1199-a705-447d-8d14-c0e62a6a5e52" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/azaricomm/scheduler/src/test/java/com/azaricomm/task/NotificationSchedulerIntegrationTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/client/OpenMrsClient.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/client/OpenMrsClient.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/model/Appointment.class" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/api/target/classes/com/azaricomm/api/model/Appointment.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/azaricomm/scheduler/src/test/java/com/azaricomm/task/NotificationSchedulerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/scheduler/src/test/java/com/azaricomm/task/NotificationSchedulerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/azaricomm/notifworker/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/azaricomm/notifworker/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
