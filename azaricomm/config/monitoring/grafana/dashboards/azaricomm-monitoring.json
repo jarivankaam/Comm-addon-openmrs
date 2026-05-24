@@ -151,15 +151,20 @@
       }
     },
     {
-      "title": "RabbitMQ Queue Messages",
+      "title": "Queue Depth",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
       "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
       "targets": [
         {
-          "expr": "rabbitmq_queue_messages",
-          "legendFormat": "{{queue}}",
+          "expr": "rabbitmq_queue_messages_ready",
+          "legendFormat": "Ready – {{queue}}",
           "refId": "A"
+        },
+        {
+          "expr": "rabbitmq_queue_messages_unacknowledged",
+          "legendFormat": "In-flight – {{queue}}",
+          "refId": "B"
         }
       ],
       "fieldConfig": {
@@ -191,6 +196,24 @@
         },
         "overrides": []
       }
+    },
+    {
+      "title": "Distributed Traces",
+      "type": "traces",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 32 },
+      "datasource": { "type": "tempo", "uid": "tempo" },
+      "targets": [
+        {
+          "datasource": { "type": "tempo", "uid": "tempo" },
+          "queryType": "traceql",
+          "query": "{resource.service.name=~\"azaricomm.*\"}",
+          "limit": 20,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "frameType": "trace"
+      }
     }
   ],
   "refresh": "10s",
@@ -202,5 +225,5 @@
   "timezone": "browser",
   "title": "AzariComm Monitoring",
   "uid": "azaricomm-main",
-  "version": 1
+  "version": 2
 }

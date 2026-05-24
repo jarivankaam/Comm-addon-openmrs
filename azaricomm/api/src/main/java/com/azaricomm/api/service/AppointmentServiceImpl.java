@@ -8,6 +8,8 @@ import com.azaricomm.api.model.Appointment;
 import com.azaricomm.api.model.AppointmentStatus;
 import com.azaricomm.api.repository.AppointmentRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
+import io.opentelemetry.context.Context;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.slf4j.Logger;
@@ -19,6 +21,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -57,6 +61,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setStatus(AppointmentStatus.SCHEDULED);
         appointment.setCreatedAt(Instant.now());
         appointment.setExpireAt(request.getScheduledTime().plus(14, ChronoUnit.DAYS));
+        appointment.setTraceContext(currentTraceContext());
 
         Appointment saved = repository.save(appointment);
         apiMetrics.recordAppointmentReceived(request.getOrganizationId());
@@ -129,9 +134,16 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
         }
 
+        appointment.setTraceContext(currentTraceContext());
         repository.save(appointment);
         apiMetrics.recordAppointmentReceived(appointment.getOrganizationId());
         logWebhookPayload(remoteAddr, encoding, rawLen, bodyLen, json, appointment);
+    }
+
+    private Map<String, String> currentTraceContext() {
+        Map<String, String> ctx = new HashMap<>();
+        W3CTraceContextPropagator.getInstance().inject(Context.current(), ctx, Map::put);
+        return ctx;
     }
 
     private void logWebhookPayload(String remote, String encoding, int rawLen, int bodyLen,

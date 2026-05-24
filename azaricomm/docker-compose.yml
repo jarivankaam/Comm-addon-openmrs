@@ -123,6 +123,16 @@ services:
     ports:
       - "1337:8080"
 
+  tempo:
+    image: grafana/tempo:latest
+    container_name: azaricomm-tempo
+    command: ["-config.file=/etc/tempo.yml"]
+    ports:
+      - "3200:3200"
+    volumes:
+      - ./config/monitoring/tempo.yml:/etc/tempo.yml
+      - tempo-data:/tmp/tempo
+
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
     container_name: azaricomm-otel-collector
@@ -132,6 +142,8 @@ services:
       - "8889:8889"
     volumes:
       - ./config/monitoring/otel-collector-config.yml:/etc/otelcol-contrib/config.yaml
+    depends_on:
+      - tempo
 
   prometheus:
     image: prom/prometheus:latest
@@ -163,3 +175,4 @@ volumes:
   mongodb_data:
   prometheus-data:
   grafana-data:
+  tempo-data:

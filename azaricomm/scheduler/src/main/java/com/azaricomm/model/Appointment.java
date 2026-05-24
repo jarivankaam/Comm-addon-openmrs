@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.Instant;
+import java.util.Map;
 
 @Document(collection = "appointments")
 @CompoundIndex(name = "status_scheduledTime_idx", def = "{'status': 1, 'scheduledTime': 1}")
@@ -20,6 +21,7 @@ public class Appointment {
 
     // Jouw slimme notificatie-timers structuur voor de 24h en 1h herinneringen
     private NotificationTimers notifications = new NotificationTimers();
+    private Map<String, String> traceContext;
 
     public Appointment() {}
 
@@ -47,4 +49,7 @@ public class Appointment {
 
     public NotificationTimers getNotifications() { return notifications; }
     public void setNotifications(NotificationTimers notifications) { this.notifications = notifications; }
+
+    public Map<String, String> getTraceContext() { return traceContext; }
+    public void setTraceContext(Map<String, String> traceContext) { this.traceContext = traceContext; }
 }
