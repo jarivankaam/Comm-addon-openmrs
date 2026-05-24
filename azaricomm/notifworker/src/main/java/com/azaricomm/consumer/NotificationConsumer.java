@@ -53,47 +53,40 @@ public class NotificationConsumer {
         log.info("Received notification: {}", message);
         notifWorkerMetrics.recordNotificationReceived();
 
-        try {
-            if (!enrichmentService.enrich(message)) {
-                log.warn("Could not enrich notification, discarding message for appointment: {}", message.getAppointmentId());
-                notifWorkerMetrics.recordNotificationDiscarded("enrichment_failed");
-                return;
-            }
+        if (!enrichmentService.enrich(message)) {
+            log.warn("Could not enrich notification, discarding message for appointment: {}", message.getAppointmentId());
+            notifWorkerMetrics.recordNotificationDiscarded("enrichment_failed");
+            return;
+        }
 
-            if (!validationService.validateMessage(message)) {
-                log.warn("Notification validation failed, discarding message: {}", message);
-                notifWorkerMetrics.recordNotificationDiscarded("validation_failed");
-                return;
-            }
+        if (!validationService.validateMessage(message)) {
+            log.warn("Notification validation failed, discarding message: {}", message);
+            notifWorkerMetrics.recordNotificationDiscarded("validation_failed");
+            return;
+        }
 
-            String currentStatus = retryService.getNotificationStatus(message.getAppointmentId(), message.getNotificationType());
-            if ("SENT".equals(currentStatus)) {
-                log.warn("[Idempotency] Notification already sent, discarding redelivered message for appointmentId={} type={}",
-                        message.getAppointmentId(), message.getNotificationType());
-                notifWorkerMetrics.recordNotificationDiscarded("idempotent");
-                return;
-            }
+        String currentStatus = retryService.getNotificationStatus(message.getAppointmentId(), message.getNotificationType());
+        if ("SENT".equals(currentStatus)) {
+            log.warn("[Idempotency] Notification already sent, discarding redelivered message for appointmentId={} type={}",
+                    message.getAppointmentId(), message.getNotificationType());
+            notifWorkerMetrics.recordNotificationDiscarded("idempotent");
+            return;
+        }
+
+        DeliveryResult result = providerRouter.route(message);
 
         if (result.isSuccess()) {
-            log.info("[Consumer] Notification delivered: {}", result);
+            log.info("Notification delivered: {}", result);
             retryService.markNotificationAsSent(message.getAppointmentId(), message.getNotificationType());
+            notifWorkerMetrics.recordNotificationDelivered(message.getProvider());
         } else {
-            log.error("[Consumer] Notification delivery failed: {}", result);
-
-            if (result.isSuccess()) {
-                log.info("Notification delivered: {}", result);
-                retryService.markNotificationAsSent(message.getAppointmentId(), message.getNotificationType());
-                notifWorkerMetrics.recordNotificationDelivered(message.getProvider());
-            } else {
-                log.error("Notification delivery failed: {}", result);
-                retryService.saveFailedNotification(
-                    message.getAppointmentId(),
-                    message.getNotificationType(),
-                    result.getErrorMessage()
-                );
-                notifWorkerMetrics.recordNotificationFailed(message.getProvider());
-            }
-
+            log.error("Notification delivery failed: {}", result);
+            retryService.saveFailedNotification(
+                message.getAppointmentId(),
+                message.getNotificationType(),
+                result.getErrorMessage()
+            );
+            notifWorkerMetrics.recordNotificationFailed(message.getProvider());
             // GOOI EXCEPTION: Dit triggert de @Retryable backoff!
             throw new RuntimeException("Messaging provider downtime voor " + message.getProvider() + " | Reden: " + result.getErrorMessage());
         }

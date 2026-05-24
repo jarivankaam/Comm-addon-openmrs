@@ -45,7 +45,7 @@ public class AppointmentEnrichmentService {
             String decryptedJson = decryptionService.decrypt(appointment.getDataEncrypted());
             EncryptedAppointmentData data = objectMapper.readValue(decryptedJson, EncryptedAppointmentData.class);
 
-            message.setPatientId(data.getPatientId());
+            message.setPatientId(appointment.getPatientId());
             message.setPatientPhone(data.getPatientPhone());
             message.setSubject(data.getSubject());
             message.setInstructions(data.getInstructions());
@@ -74,7 +74,35 @@ public class AppointmentEnrichmentService {
             message.setAppointmentDateTime(appointment.getScheduledTime().toString());
         }
 
+        if (message.getBody() == null || message.getBody().isBlank()) {
+            message.setBody(buildBody(message));
+        }
+
         log.debug("Enriched notification message from MongoDB for appointment: {}", appointmentId);
         return true;
+    }
+
+    private String buildBody(NotificationMessage message) {
+        String timeInfo = message.getAppointmentDateTime() != null ? message.getAppointmentDateTime() : "a scheduled time";
+        String location = message.getAppointmentLocation();
+        String instructions = message.getInstructions();
+
+        StringBuilder sb = new StringBuilder();
+
+        if ("REMINDER_1H".equalsIgnoreCase(message.getNotificationType())) {
+            sb.append("Reminder: your appointment is in 1 hour, at ").append(timeInfo).append(".");
+        } else {
+            sb.append("Reminder: your appointment is scheduled for ").append(timeInfo).append(".");
+        }
+
+        if (location != null && !location.isBlank()) {
+            sb.append(" Location: ").append(location).append(".");
+        }
+
+        if (instructions != null && !instructions.isBlank()) {
+            sb.append(" ").append(instructions);
+        }
+
+        return sb.toString();
     }
 }

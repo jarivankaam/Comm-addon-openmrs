@@ -12,6 +12,7 @@ public class Appointment {
     private String id;
 
     private String organizationId;
+    private String patientId;
     private Instant scheduledTime;
     private String dataEncrypted;
     private String locationEncrypted;
@@ -23,6 +24,9 @@ public class Appointment {
 
     public String getOrganizationId() { return organizationId; }
     public void setOrganizationId(String organizationId) { this.organizationId = organizationId; }
+
+    public String getPatientId() { return patientId; }
+    public void setPatientId(String patientId) { this.patientId = patientId; }
 
     public Instant getScheduledTime() { return scheduledTime; }
     public void setScheduledTime(Instant scheduledTime) { this.scheduledTime = scheduledTime; }
