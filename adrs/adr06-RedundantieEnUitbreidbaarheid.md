@@ -1,6 +1,6 @@
 # ADR 6: Redundantie en Uitbreidbaarheid
 
-**Status:** Voorgesteld
+**Status:** Geaccepteerd
 
 **Datum:** 18 mei 2026
 
