@@ -1,6 +1,6 @@
 # ADR 1: Positionering van de Communicatiemodule
 
-**Status:** Voorgesteld
+**Status:** Geaccepteerd
 
 **Datum:** 23 april 2026
 
