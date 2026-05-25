@@ -4,8 +4,8 @@ services:
     container_name: azaricomm-rabbitmq
     ports:
       - "5672:5672"
-      - "15672:15672"
-      - "15692:15692"
+      - "18072:15672"
+      - "18092:15692"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
