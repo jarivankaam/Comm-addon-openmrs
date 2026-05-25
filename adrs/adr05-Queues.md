@@ -45,4 +45,4 @@ Het Competing Consumers patroon stelt ons in staat om de verwerkingscapaciteit l
 
 ### Dedicated Queues per Externe Provider *(Rejected)*
 Hierbij zou RabbitMQ de berichten al direct moeten sorteren in aparte wachtrijen voor SwiftSend, LegacyLink, etc.
-* **Waarom niet?** Dit maakt de architectuur erg rigide. Als een ziekenhuis besluit te wisselen van provider, of
+* **Waarom niet?** Dit maakt de architectuur erg rigide.
