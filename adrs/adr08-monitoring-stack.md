@@ -2,11 +2,15 @@
 
 ## Status
 
-Geaccepteerd
+**Status:** Geaccepteerd
+
+**Datum:** 23 mei 2026
+
+**Besluitvormer:** Architectuurteam
 
 ## Context
 
-Het systeem bestaat uit meerdere services (api, scheduler, notifworker) die observeerbaar moeten zijn in productie. We hebben inzicht nodig in HTTP-verkeer, de gezondheid van message queues, notificatie-aflevering en JVM-prestaties — zonder een sterke koppeling te creëren tussen de services en een specifieke monitoring-backend.
+Het systeem bestaat uit meerdere services (api, scheduler, notifworker) die observeerbaar moeten zijn in productie. We hebben inzicht nodig in HTTP-verkeer, de gezondheid van message queues, notificatie-aflevering en JVM-prestaties zonder een sterke koppeling te creëren tussen de services en een specifieke monitoring-backend.
 
 ## Besluit
 
