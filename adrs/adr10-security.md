@@ -1,6 +1,6 @@
 # ADR 10: Beveiliging, Gegevensversleuteling en Endpoint Validatie
 
-**Status:** Voorgesteld
+**Status:** Geaccepteerd
 
 **Datum:** 23 mei 2026
 
