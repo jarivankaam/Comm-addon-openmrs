@@ -1,0 +1,42 @@
+# Maven
+**/target/
+*.jar
+*.war
+*.ear
+*.class
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Environment / secrets
+azaricomm/.env
+.env.local
+.env.*.local
+
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# IntelliJ IDEA
+**/.idea/workspace.xml
+**/.idea/shelf/
+**/.idea/httpRequests/
+**/.idea/dataSources/
+**/.idea/dataSources.local.xml
+**/.idea/queries/
+**/.idea/tasks.xml
+**/.idea/usage.statistics.xml
+*.iws
+
+# VS Code user-specific
+.vscode/.ropeproject
+.vscode/launch.json
+
+# Logs
+*.log
+logs/
+
+# Java
+hs_err_pid*
+replay_pid*

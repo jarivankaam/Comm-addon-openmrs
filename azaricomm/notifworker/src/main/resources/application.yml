@@ -1,0 +1,45 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: azaricomm-communication-service
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/openmrs}
+
+rabbitmq:
+  exchange: azaricomm.events
+  queue: azaricomm.notifications
+  routing-key: "notification.#"
+
+crypto:
+  secret-key: abcdefghijklmnopqrstuvwxyz123456
+
+fakecomworld:
+  student-group: ${FAKECOMWORLD_STUDENT_GROUP:azaricomm}
+
+providers:
+  swiftsend:
+    url: ${PROVIDER_SWIFTSEND_URL:https://httpbin.org/post}
+    api-key: ${PROVIDER_SWIFTSEND_API_KEY:mock-key-123}
+  legacylink:
+    url: ${PROVIDER_LEGACYLINK_URL:http://localhost:8099/mock/legacylink}
+    username: ${PROVIDER_LEGACYLINK_USERNAME:legacylink-user}
+    password: ${PROVIDER_LEGACYLINK_PASSWORD:legacylink-password}
+  securepost:
+    url: ${PROVIDER_SECUREPOST_URL:http://localhost:8099/mock/securepost}
+    client-id: ${PROVIDER_SECUREPOST_CLIENT_ID:securepost-client-id}
+    client-secret: ${PROVIDER_SECUREPOST_CLIENT_SECRET:securepost-secret-key}
+  asyncflow:
+    url: ${PROVIDER_ASYNCFLOW_URL:http://localhost:8099/mock/asyncflow}
+    api-key: ${PROVIDER_ASYNCFLOW_API_KEY:mock-key-123}
+
+logging:
+  level:
+    com.azaricomm: DEBUG
