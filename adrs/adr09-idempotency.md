@@ -1,6 +1,6 @@
 # ADR 9: Idempotentie en Dubbele Berichten Preventie
 
-**Status:** Voorgesteld
+**Status:** Geaccepteerd
 
 **Datum:** 23 mei 2026
 
