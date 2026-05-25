@@ -1,6 +1,6 @@
 # ADR 2: Technologie Stack
 
-**Status:** Voorgesteld
+**Status:** Geaccepteerd
 
 **Datum:** 23 april 2026
 
@@ -16,8 +16,8 @@ Wij hebben gekozen voor de volgende technologie stack:
 
 | Component                        | Keuze                            |
 |----------------------------------|----------------------------------|
-| Taal                             | Java 8                           |
-| Framework                        | Spring (Boot) 2.7.x                |
+| Taal                             | Java 17+                           |
+| Framework                        | Spring (Boot) 3.2.x               |
 | API Applicatie                    | Spring Web (Ingress van FHIR Resources) |
 | Berichtenwachtrij (Message Broker) | RabbitMQ                        |
 | Scheduler                        | Spring Boot @Scheduled (Polling van DB)  |
@@ -28,13 +28,14 @@ Wij hebben gekozen voor de volgende technologie stack:
 
 ## Argumentatie
 
-### 1. Taal & Framework: Java 8 met Spring Boot 2.7
 
-**Waarom:** Hoewel Java 8 ouder is, is het extreem stabiel en wordt het breed ondersteund binnen de OpenMRS-community. Spring Boot 2.7 is de laatste grote versie die nog Java 8 ondersteunt.
+### 1. Taal & Framework: Java 17 met Spring Boot 3.2.x
 
-**Match met eisen:** Spring Boot heeft een volwassen ecosysteem voor beveiliging (Spring Security) en integraties, wat essentieel is voor de gevraagde AES-256 encryptie en TLS 1.3 verbindingen.
+**Waarom:** Java 17 is een Long-Term Support (LTS) versie die goede runtime-prestaties en geoptimaliseerd geheugenbeheer (Garbage Collection) biedt ten opzichte van oudere versies. Spring Boot 3.2.x vormt hierop de moderne, cloud-native uitbreiding die actieve security-support garandeert. Dit is een harde randvoorwaarde voor een veilig enterprise SaaS-platform dat medische data verwerkt.
 
-**Capaciteiten team:** Java is een "type-safe" taal, wat cruciaal is bij het verwerken van medische data om runtime-fouten te voorkomen.
+**Match met eisen:** Spring Boot 3.2.x integreert sterk met de nieuwste Jakarta EE-standaarden voor datavalidatie (`@Valid`). Daarnaast biedt het volwassen out-of-the-box ondersteuning voor moderne TLS 1.3-verbindingen en geavanceerde cryptografische libraries die noodzakelijk zijn voor onze AES-256 encryptiestrategie.
+
+**Capaciteiten team:** Java is een "type-safe" taal, wat cruciaal is bij het verwerken van medische data om runtime-fouten te voorkomen. Features in Java 17, zoals *Switch Expressions* en *Records*, stellen ons in staat om een cleaner, minder foutgevoelige en SOLID-compliant codebase te schrijven.
 
 ### 2. Berichtenwachtrij: RabbitMQ
 
@@ -55,16 +56,16 @@ De kracht van de Worker zit in de "Just-in-Time" validatie:
 
 **Annuleringen:** Als een patiënt in de tussentijd heeft geannuleerd, is de status in MongoDB gewijzigd naar CANCELLED. De Worker ziet dit, breekt de verzending af en logt dit resultaat.
 
-**Tijd Check:** De Worker controleert of de afspraak niet al begonnen is (eis 1.3 van de opdracht).
+**Tijd Check:** De Worker controleert of de afspraak niet al begonnen is (Functionele eis 1).
 
 ### 4. Database: MongoDB
 **Waarom:** FHIR-resources zijn in de kern gestructureerde datastructuren (JSON). MongoDB, als document-oriented database, kan deze resources opslaan zonder ze te hoeven forceren in een streng tabelstructuur.
 
-**Data Retention:** MongoDB biedt TTL (Time-To-Live) indexen. Hiermee kunnen we technisch garanderen dat patiëntgegevens na exact 14 dagen worden verwijderd, simpelweg door een verlooptijd op het document in te stellen.
+**Data Retention: (eis 10)** MongoDB biedt TTL (Time-To-Live) indexen. Hiermee kunnen we technisch garanderen dat patiëntgegevens na exact 14 dagen worden verwijderd, simpelweg door een verlooptijd op het document in te stellen.
 
-**Capaciteiten team:** Het team heeft ruime ervaring met NoSQL/MongoDB en geen ervaring met PostgreSQL. Het kiezen voor MongoDB voorkomt kostbare leercurves en implementeer fouten tijdens de implementatie.
+**Capaciteiten team:** Het team heeft veel ervaring met NoSQL/MongoDB en geen ervaring met PostgreSQL. Het kiezen voor MongoDB voorkomt kostbare leercurves en implementeer fouten tijdens de implementatie.
 
-**Status-gebaseerd beheer:** We slaan afspraken op met status-tags (SCHEDULED, QUEUED, SENT, CANCELLED). Dit stelt ons in staat om annuleringen simpelweg te verwerken door een status-update, zonder complexe operaties in de berichtenwachtrij.
+**Status-gebaseerd beheer:** We slaan afspraken op met status-tags (SCHEDULED, QUEUED, SENT, CANCELLED, FAILED). Dit stelt ons in staat om annuleringen simpelweg te verwerken door een status-update, zonder complexe operaties in de berichtenwachtrij.
 
 **Performance:** Door gebruik van Compound Indexen op status en scheduledTime kan de scheduler miljoenen records scannen in milliseconden zonder de database te overbelasten.
 
@@ -85,7 +86,7 @@ De kracht van de Worker zit in de "Just-in-Time" validatie:
 
 **Waarom:** De scheduler fungeert als de "wekker" van het systeem. Hij ontkoppelt de ontvangst van de afspraak (API) van het versturen (Worker). Dit is essentieel voor de gevraagde 24h/1h notificaties.
 
-**Mechanisme:** De scheduler haalt in batches afspraken op die klaarstaan voor verzending en plaatst enkel een referentie (ID) in RabbitMQ. Dit verhoogt de veiligheid en garandeert dat de Worker altijd de meest actuele data uit de database ophaalt. Dit voorkomt ook dat de queue volstroomt met berichten die pas over uren verwerkt hoeven te worden.
+**Mechanisme:** De scheduler haalt in batches afspraken op die klaarstaan voor verzending en plaatst enkel een referentie (ID) en de soort notificatie in RabbitMQ. Dit verhoogt de veiligheid en garandeert dat de Worker altijd de meest actuele data uit de database ophaalt. Dit voorkomt ook dat de queue volstroomt met berichten die pas over uren verwerkt hoeven te worden.
 
 ## Overwogen alternatieven
 
@@ -103,8 +104,6 @@ De kracht van de Worker zit in de "Just-in-Time" validatie:
 
 **Consistentie:** De Worker moet altijd een leesactie op de database uitvoeren vóór verzending. Dit verhoogt de betrouwbaarheid maar zorgt voor een kleine extra belasting op MongoDB.
 
-**Idempotentie:** Onze verzend-logica moet herkennen of een bericht per ongeluk dubbel wordt aangeboden om dubbele SMS'jes te voorkomen.
+**Idempotentie:** Onze verzend-logica moet herkennen of een bericht per ongeluk dubbel wordt aangeboden om dubbele SMS'jes te voorkomen. (Zie ADR09)
 
 **Beheer:** Er moet een RabbitMQ-server en MongoDB-server worden ingericht en onderhouden (naast de applicatie zelf).
-
-**Beveiliging:** Omdat we Java 8 gebruiken, moeten we extra goed letten op het up-to-date houden van dependencies om beveiligingslekken te voorkomen.
