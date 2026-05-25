@@ -1,6 +1,6 @@
-# ADR 4: Kwaliteitsbewaking en Teststrategie
+# ADR 04: Kwaliteitsbewaking en Teststrategie
 
-**Status:** Voorgesteld  
+**Status:** Geaccepteerd 
 **Datum:** 23 april 2026  
 **Besluitvormer:** Architectuurteam
 
