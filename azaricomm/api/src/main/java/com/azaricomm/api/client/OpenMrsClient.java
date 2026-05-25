@@ -25,6 +25,11 @@ public class OpenMrsClient {
     @Value("${openmrs.base-url}")
     private String baseUrl;
 
+    @jakarta.annotation.PostConstruct
+    private void init() {
+        baseUrl = baseUrl.stripTrailing().replaceAll("/+$", "");
+    }
+
     @Value("${openmrs.username}")
     private String username;
 
