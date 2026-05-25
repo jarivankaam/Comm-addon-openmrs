@@ -40,3 +40,8 @@ logs/
 # Java
 hs_err_pid*
 replay_pid*
+
+
+.vscode
+.idea
+.claude
