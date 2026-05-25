@@ -1,6 +1,6 @@
 # ADR 7: Notificatie Berichtstructuur & Templating
 
-**Status:** Voorgesteld
+**Status:** Geaccepteerd
 
 **Datum:** 21 mei 2026
 
