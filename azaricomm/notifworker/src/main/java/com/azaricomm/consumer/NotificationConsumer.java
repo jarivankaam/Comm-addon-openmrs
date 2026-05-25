@@ -5,6 +5,7 @@ import com.azaricomm.model.DeliveryResult;
 import com.azaricomm.model.NotificationMessage;
 import com.azaricomm.provider.ProviderRouter;
 import com.azaricomm.service.AppointmentEnrichmentService;
+import com.azaricomm.service.AuditLogService;
 import com.azaricomm.service.NotificationRetryService;
 import com.azaricomm.service.NotificationValidationService;
 import org.slf4j.Logger;
@@ -16,6 +17,8 @@ import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+
 @Component
 public class NotificationConsumer {
 
@@ -26,17 +29,19 @@ public class NotificationConsumer {
     private final NotificationRetryService retryService;
     private final AppointmentEnrichmentService enrichmentService;
     private final NotifWorkerMetrics notifWorkerMetrics;
+    private final AuditLogService auditLogService;
 
     public NotificationConsumer(ProviderRouter providerRouter,
                                NotificationValidationService validationService,
                                NotificationRetryService retryService,
                                AppointmentEnrichmentService enrichmentService,
-                               NotifWorkerMetrics notifWorkerMetrics) {
+                               NotifWorkerMetrics notifWorkerMetrics, AuditLogService auditLogService) {
         this.providerRouter = providerRouter;
         this.validationService = validationService;
         this.retryService = retryService;
         this.enrichmentService = enrichmentService;
         this.notifWorkerMetrics = notifWorkerMetrics;
+        this.auditLogService = auditLogService;
     }
 
     /**
@@ -50,6 +55,7 @@ public class NotificationConsumer {
             backoff = @Backoff(delay = 2000, multiplier = 2.0)
     )
     public void handleNotification(NotificationMessage message) {
+        Instant receivedAt = Instant.now();
         log.info("Received notification: {}", message);
         notifWorkerMetrics.recordNotificationReceived();
 
@@ -74,6 +80,8 @@ public class NotificationConsumer {
         }
 
         DeliveryResult result = providerRouter.route(message);
+
+        auditLogService.logDeliveryAttempt(message, result, receivedAt);
 
         if (result.isSuccess()) {
             log.info("Notification delivered: {}", result);
