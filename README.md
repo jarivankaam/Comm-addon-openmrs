@@ -1,96 +1,81 @@
-# AzariComm - OpenMRS Communication Module
+# AzariComm - OpenMRS Communication Architecture
 
-A SaaS communication module that sends appointment notifications for OpenMRS organisations via external messaging providers.
+A decoupled, SaaS communication platform that receives appointment events from OpenMRS and routes them to external messaging providers.
 
 ## Architecture
 
-```
-┌──────────────────┐        ┌──────────┐        ┌──────────────────────────┐
-│  OpenMRS + Module │──────▶│ RabbitMQ │──────▶│  Communication Service    │
-│  (azaricomm)      │ publish│          │consume│                          │
-└──────────────────┘        └──────────┘        │  ┌────────────────────┐  │
-                                                 │  │  Provider Router   │  │
-                                                 │  └─────┬──┬──┬──┬───┘  │
-                                                 │        │  │  │  │      │
-                                                 │   SS  LL  AF  SP      │
-                                                 └──────────────────────────┘
+The project has transitioned from a monolithic OpenMRS module to a decoupled microservices architecture to improve reliability, monitoring, and separation of concerns.
 
-SS = SwiftSend    LL = LegacyLink
-AF = AsyncFlow    SP = SecurePost
+```text
+┌───────────────────────────┐    ┌────────────────────────────────────────────────────────┐
+│        OpenMRS            │    │                       AzariComm                        │
+│ ┌───────────────────────┐ │    │                                                        │
+│ │ Bahmni Appointments   │ │ 1  │ ┌─────────┐   2  ┌──────────┐   3  ┌───────────────┐ │
+│ │ Hook Module           ├─┼────┼▶│   API   │─────▶│ MongoDB  │◀─────┤   Scheduler   │ │
+│ │ (appointmentwebhook)  │ │    │ └─────────┘      └──────────┘      │               │ │
+│ └───────────────────────┘ │    │                                    └───────┬───────┘ │
+└───────────────────────────┘    │                                            │         │
+                                 │                                          4 │ publish │
+                                 │                                            ▼         │
+                                 │  ┌────────────────────┐                ┌───────────┐ │
+                                 │  │  FakeComWorld      │   6   consume  │ RabbitMQ  │ │
+                                 │  │ (Messaging Mock)   │◀─ ─ ─ ─ ─ ─ ─ ─┤           │ │
+                                 │  └────────────────────┘ ┌───────────┐  └───────────┘ │
+                                 │                         │Notifworker│                │
+                                 │                         └───────────┘                │
+                                 └────────────────────────────────────────────────────────┘
 ```
 
-The OpenMRS module publishes notification messages to RabbitMQ. The communication service consumes them asynchronously and routes to the configured messaging provider. This decouples OpenMRS from the providers — neither needs to know about the other, and downtime on either side is handled by the queue.
+**Components:**
+1. **Appointment Webhook Module** (`appointmentwebhook/`): An OpenMRS module that hooks into Bahmni Appointments. When an appointment is saved or updated, it pushes a FHIR R4 webhook payload to the AzariComm API.
+2. **AzariComm API** (`azaricomm/api`): A Spring Boot service that receives webhook payloads, validates signatures, and persists appointment records into MongoDB.
+3. **AzariComm Scheduler** (`azaricomm/scheduler`): A Spring Boot service that periodically checks MongoDB for upcoming appointments and publishes event payloads to RabbitMQ.
+4. **AzariComm Notification Worker** (`azaricomm/notifworker`): Consumes messages from RabbitMQ and routes them to the correct external messaging provider.
+5. **FakeComWorld** (`azaricomm/fakecomworld`): A mock messaging provider container used for local testing of SwiftSend, LegacyLink, SecurePost, and AsyncFlow.
+
+**Telemetry & Monitoring**: The stack includes OpenTelemetry Collector, Tempo, Prometheus, and Grafana to provide full-system tracing and metrics.
 
 ## Quick Start
 
 ### Prerequisites
 - Docker and Docker Compose
+- Java 17+ and Maven (for building the OpenMRS webhook module, if desired)
 
-### Start the services
+### Start the AzariComm Platform
 
 ```bash
+cd azaricomm
 docker compose up --build
 ```
 
 This starts:
-- **RabbitMQ** on ports 5672 (AMQP) and 15672 (management UI)
-- **Communication Service** on port 8081
+- **API** (`:8080`)
+- **Scheduler**
+- **Notifworker**
+- **RabbitMQ** (`:5672`, Management UI `:18072`)
+- **MongoDB** (`:27017`)
+- **FakeComWorld** (`:1337`)
+- **Monitoring Stack**: Grafana (`:3000`), Prometheus (`:9090`), Tempo (`:3200`)
 
-### Send a test notification
+### Send a Test Notification
 
-Once the services are running, publish a test message:
+You can simulate what the scheduler does by pushing a test payload directly to the API endpoints or by using the included script:
 
 ```bash
+cd azaricomm
 chmod +x test-notification.sh
 ./test-notification.sh swiftsend
 ```
 
-Or use curl directly against the RabbitMQ management API:
-
-```bash
-curl -u guest:guest \
-  -H "Content-Type: application/json" \
-  -X POST "http://localhost:15672/api/exchanges/%2F/openmrs.events/publish" \
-  -d '{
-    "properties": {"content_type": "text/plain"},
-    "routing_key": "notification.REMINDER_24H",
-    "payload": "{\"organizationId\":\"hospital-amsterdam-001\",\"patientUuid\":\"patient-uuid-12345\",\"patientPhone\":\"+31612345678\",\"subject\":\"Afspraakherinnering\",\"body\":\"Uw afspraak is morgen om 10:00 op de polikliniek.\",\"appointmentUuid\":\"appt-uuid-67890\",\"appointmentDateTime\":\"2026-05-12T10:00:00\",\"appointmentLocation\":\"Polikliniek 3, Kamer 201\",\"instructions\":\"Nuchter blijven vanaf 22:00 de avond ervoor.\",\"timezone\":\"Europe/Amsterdam\",\"notificationType\":\"REMINDER_24H\",\"provider\":\"swiftsend\"}",
-    "payload_encoding": "string"
-  }'
-```
-
 ### Verify
 
-Watch the communication service logs:
+Watch the logs:
 
 ```bash
-docker compose logs -f communication-service
+docker compose logs -f api notifworker
 ```
 
-You should see output like:
-
-```
-Received notification from queue
-Parsed notification: NotificationMessage{org='hospital-amsterdam-001', patient='patient-uuid-12345', ...}
-Routing notification to provider 'swiftsend' for org 'hospital-amsterdam-001'
-[SwiftSend] Sending to +31612345678 | subject: Afspraakherinnering | body: Uw afspraak is morgen...
-[SwiftSend] Delivered successfully, messageId=SS-a1b2c3d4
-Notification delivered: DeliveryResult{SUCCESS, provider=swiftsend, messageId=SS-a1b2c3d4}
-```
-
-### Test different providers
-
-```bash
-./test-notification.sh legacylink
-./test-notification.sh asyncflow
-./test-notification.sh securepost
-```
-
-### RabbitMQ Management UI
-
-Open http://localhost:15672 (guest/guest) to inspect queues, exchanges, and messages.
-
-## Supported Messaging Providers
+### Supported Messaging Providers (via NotifWorker)
 
 | Provider    | Behaviour                              |
 |-------------|----------------------------------------|
@@ -99,61 +84,25 @@ Open http://localhost:15672 (guest/guest) to inspect queues, exchanges, and mess
 | AsyncFlow   | Async acceptance, delivers later       |
 | SecurePost  | Security-focused with encryption       |
 
+You can test them individually by passing the provider name to the script:
+```bash
+./test-notification.sh legacylink
+./test-notification.sh asyncflow
+./test-notification.sh securepost
+```
+
 ## Adding a New Provider
 
-1. Create a class that implements `MessagingProvider`
-2. Annotate it with `@Component`
-3. Return a unique name from `getName()`
+1. Open the `azaricomm/notifworker/` project and create a class implementing the `MessagingProvider` interface.
+2. Annotate it with `@Component`.
+3. Return a unique name from `getName()`.
+4. Implement the `send()` logic.
 
-```java
-@Component
-public class MyNewProvider implements MessagingProvider {
-    @Override
-    public String getName() { return "mynewprovider"; }
+The `ProviderRouter` will auto-discover the new implementation.
 
-    @Override
-    public DeliveryResult send(NotificationMessage message) {
-        // call the provider's API
-        return DeliveryResult.success(getName(), "msg-id-123");
-    }
-}
-```
+## OpenMRS Module Setup (appointmentwebhook)
 
-No other code changes needed — the `ProviderRouter` auto-discovers it.
-
-## Project Structure
-
-```
-azaricomm/
-├── api/                        # OpenMRS module - core logic
-│   └── src/main/java/.../
-│       ├── messaging/
-│       │   ├── RabbitMQService.java       # Publishes to RabbitMQ
-│       │   ├── NotificationService.java   # Builds and sends notifications
-│       │   └── NotificationMessage.java   # Shared DTO
-│       ├── api/                           # OpenMRS service layer
-│       └── AzariCommActivator.java
-├── omod/                       # OpenMRS module - web layer
-│   └── src/main/java/.../
-│       └── web/controller/
-│           └── NotificationController.java  # REST endpoint
-├── communication-service/      # Standalone service (Spring Boot)
-│   ├── Dockerfile
-│   ├── pom.xml
-│   └── src/main/java/com/azaricomm/
-│       ├── consumer/
-│       │   └── NotificationConsumer.java    # RabbitMQ listener
-│       ├── provider/
-│       │   ├── MessagingProvider.java       # Provider interface
-│       │   ├── ProviderRouter.java          # Auto-discovers and routes
-│       │   ├── SwiftSendProvider.java
-│       │   ├── LegacyLinkProvider.java
-│       │   ├── AsyncFlowProvider.java
-│       │   └── SecurePostProvider.java
-│       └── model/
-│           ├── NotificationMessage.java
-│           └── DeliveryResult.java
-├── docker-compose.yml
-├── test-notification.sh
-└── README.md
-```
+To connect an existing OpenMRS instance with Bahmni Appointments to this platform:
+1. Build the module: `cd appointmentwebhook && mvn clean install`
+2. Install the generated OMOD into your OpenMRS server.
+3. Configure the webhook secret and destination URL (e.g., `http://azaricomm-api:8080/api/appointments/webhook/openmrs`) via the OpenMRS Global Properties.
